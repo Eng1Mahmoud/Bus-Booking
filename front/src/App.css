@@ -1,0 +1,79 @@
+
+.App,body,html,*{
+padding:0px;
+margin:0px;
+box-sizing:border-box;
+}
+.swiper-pagination-bullet{
+  width:15px;
+  height: 15px;
+  border-radius: 50%;
+  -webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
+  -ms-border-radius: 50%;
+  -o-border-radius: 50%;
+   background-color:white;
+   opacity: .7;
+}
+.swiper-pagination-bullet-active{
+  background-color:#1a66b9;
+  opacity: 1;
+}
+
+.MuiPaper-root.MuiPaper-elevation.MuiPaper-elevation16.MuiDrawer-paper.MuiDrawer-paperAnchorRight.css-1160xiw-MuiPaper-root-MuiDrawer-paper{
+  width:70%;
+  background-color: #1a66b9 !important;
+}
+
+.css-1nrlq1o-MuiFormControl-root,.css-1u3bzj6-MuiFormControl-root-MuiTextField-root{
+width:100%
+
+}
+.serves h2{
+   font-size:40px;
+   font-weight: bold;
+   color: #1a66b9;
+}
+
+.serves .item h3{
+   font-weight: bold;
+  color:  #1a66b9;
+}
+.serves .item p{
+  color: #04305f;
+  font-size:18px;
+}
+
+.about .content{
+  background:  #1a66b9;
+  color:white;
+}
+
+.about .content h3{
+  font-size:40px;
+  font-weight:bold;
+}
+.about .content p{
+  font-size:25px;
+  }
+
+  .about .image img{
+    width:100%;
+    height:500px;
+  }
+
+  .payment h3{
+    font-weight: bold;
+    color:  #1a66b9;
+    font-size:40px;
+  }
+
+  .payment p{
+    color: #04305f;
+    font-size:20px;
+    font-weight: bold;
+  }
+  .footer{
+    background:  #1a66b9;
+    color:white
+  }

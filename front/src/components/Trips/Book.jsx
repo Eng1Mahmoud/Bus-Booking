@@ -1,0 +1,175 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+import * as React from "react";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
+import Slide from "@mui/material/Slide";
+import { Box, Grid, Typography } from "@mui/material";
+import WeekendIcon from "@mui/icons-material/Weekend";
+import axios from "axios";
+import Cookies from "js-cookie";
+import { useNavigate } from "react-router-dom";
+import Complet from "./Complet";
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
+
+export default function Book({ tripDetils }) {
+  const navigate = useNavigate();
+  const [showPide, setShowPide] = React.useState(false);
+  const [open, setOpen] = React.useState(false);
+  const [openComplet, setOpenComplet] = React.useState(false);
+  const [seatNumber, setSeatNumber] = React.useState(null);
+  const completBook = () => {
+    axios.post(
+      "http://localhost:4000/book",
+      {
+        from: tripDetils.from,
+        to: tripDetils.to,
+        date: tripDetils.date,
+        busNumber: tripDetils.busNumber,
+        seatNumber: seatNumber,
+        seatePrice: tripDetils.price,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${Cookies.get("token")}`,
+        },
+      }
+    );
+  };
+  // render paypal button
+  React.useEffect(() => {
+    window.paypal
+      .Buttons({
+        createOrder: function (data, actions) {
+          return actions.order.create({
+            purchase_units: [
+              {
+                amount: {
+                  value: tripDetils.price ,
+                 
+                },
+              },
+            ],
+          });
+        },
+        onApprove: function (data, actions) {
+          return actions.order.capture().then(function (details) {
+            setOpen(false);
+            setShowPide(false);
+            completBook();
+            setOpenComplet(true);
+          });
+        },
+      })
+      .render("#paypal-btn");
+  }, [showPide, tripDetils.price]);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    setShowPide(false);
+  };
+  const bookTrip = (SeatNumber) => {
+    setSeatNumber(SeatNumber);
+    if (!Cookies.get("token")) {
+      navigate("/signin");
+    } else {
+      setShowPide(true);
+    }
+  };
+  return (
+    <Box>
+      <Complet opens={openComplet} />
+      <Button variant="contained" onClick={handleClickOpen}>
+        Book Now
+      </Button>
+      <Dialog
+        open={open}
+        TransitionComponent={Transition}
+        keepMounted
+        onClose={handleClose}
+        aria-describedby="alert-dialog-slide-description"
+      >
+        <DialogTitle
+          sx={{
+            textAlign: "center",
+            marginBottom: "30px",
+            color: "main",
+            fontWeight: "bold",
+          }}
+        >
+          {showPide
+            ? "Complet Pay with PayPal"
+            : " Choose your seat and start booking"}
+        </DialogTitle>
+        <DialogContent sx={{ paddingTop: "20px" }}>
+          {showPide ? (
+            <Box id="paypal-btn"></Box>
+          ) : (
+            <Grid container spacing={2}>
+              {tripDetils.seats.map((seat, i) => {
+                return (
+                  <Grid
+                    item
+                    xs={6}
+                    key={i}
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        color: seat.status ? "red" : "main",
+                        cursor: seat.status ? "not-allowed" : "pointer",
+                        position: "relative",
+                        fontWight: "bolder",
+                      }}
+                      onClick={() => {
+                        // check if seat is not booked
+                        if (!seat.status) {
+                          bookTrip(seat.seatNumber);
+                        }
+                      }}
+                    >
+                      <WeekendIcon
+                        sx={{
+                          display: "inline-block",
+                          fontSize: "60px",
+                        }}
+                      />
+                      <Typography
+                        sx={{
+                          position: "absolute",
+                          bottom: "-15px",
+                          left: "40%",
+                          fontSize: "12px",
+                        }}
+                      >
+                        {i + 1}
+                      </Typography>
+                    </Box>
+                  </Grid>
+                );
+              })}
+            </Grid>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} variant="contained">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
+  );
+}
