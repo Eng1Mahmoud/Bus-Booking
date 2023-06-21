@@ -24,8 +24,7 @@ const StyledField = styled(Field)`
   .MuiFormLabel-root {
     color: "text.main";
     text-align: left;
-    
-  };
+  }
   .MuiSelect-select {
     color: "text.main";
   }
@@ -80,13 +79,12 @@ const MuiForm = () => {
   const onSubmit = (values, { resetForm }) => {
     const formattedDate = dayjs(values.date).format("YYYY-M-D");
     const data = { ...values, date: formattedDate };
-    console.log(data);
+
     axios
-      .post("http://localhost:4000/search/", data, {
+      .post("https://booking-bus.onrender.com/search/", data, {
         "content-type": "application/json",
       })
       .then((res) => {
-        console.log(res.data);
         addTrips(res.data);
         navigate("/trips");
       });
@@ -115,7 +113,7 @@ const MuiForm = () => {
           display: ["none", "none", "block"],
         }}
       >
-       {t("Start Booking Your Trip")} 
+        {t("Start Booking Your Trip")}
       </Typography>
       <Paper
         elevation={10}
@@ -150,7 +148,11 @@ const MuiForm = () => {
                     <Paper
                       elevation={10}
                       sx={{
-                        backgroundColor: ["background.main", "background.main", "transparent"],
+                        backgroundColor: [
+                          "background.main",
+                          "background.main",
+                          "transparent",
+                        ],
                         padding: "10px",
                       }}
                     >
@@ -169,7 +171,7 @@ const MuiForm = () => {
                               disabled={city.title}
                               sx={{ minWidth: "300px" }}
                             >
-                            {t(city.name)}
+                              {t(city.name)}
                             </MenuItem>
                           );
                         })}
@@ -180,7 +182,11 @@ const MuiForm = () => {
                     <Paper
                       elevation={10}
                       sx={{
-                        backgroundColor:  ["background.main", "background.main", "transparent"],
+                        backgroundColor: [
+                          "background.main",
+                          "background.main",
+                          "transparent",
+                        ],
                         padding: "10px",
                       }}
                     >
@@ -210,7 +216,11 @@ const MuiForm = () => {
                     <Paper
                       elevation={10}
                       sx={{
-                        backgroundColor: ["background.main", "background.main", "transparent"],
+                        backgroundColor: [
+                          "background.main",
+                          "background.main",
+                          "transparent",
+                        ],
                         padding: "10px",
                       }}
                     >
@@ -220,7 +230,7 @@ const MuiForm = () => {
                         as={DatePicker}
                         label={t("Date of Travel")}
                         value={values.date}
-                         minDate={today}
+                        minDate={today}
                         onChange={(newDate) => setFieldValue("date", newDate)}
                         error={Boolean(errors.date && touched["date"])}
                         helperText={errors.date}
@@ -233,7 +243,11 @@ const MuiForm = () => {
                       variant="contained"
                       size="large"
                       type="submit"
-                      sx={{ fontSize:"25px",color:"text.therd",backgroundColor:"background.therd" }}
+                      sx={{
+                        fontSize: "25px",
+                        color: "text.therd",
+                        backgroundColor: "background.therd",
+                      }}
                     >
                       {t("Search")}{" "}
                     </Button>

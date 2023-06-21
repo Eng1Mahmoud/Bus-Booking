@@ -45,11 +45,11 @@ function a11yProps(index) {
 export default function TabsEdit() {
   const [loading, setLoading] = React.useState(true);
   const [user, setUser] = React.useState({});
-  const {t} = useTranslation()
+  const { t } = useTranslation();
   const fetchUser = async () => {
     try {
       const res = await axios.post(
-        "http://localhost:4000/getUser/",
+        "https://booking-bus.onrender.com/getUser/",
         {},
         {
           headers: {
@@ -69,10 +69,10 @@ export default function TabsEdit() {
     setValue(newValue);
   };
   React.useEffect(() => {
-    if(Cookies.get("token")){
+    if (Cookies.get("token")) {
       fetchUser();
     }
-  },[user.image]);
+  }, [user.image]);
   return (
     <Container maxWidth="md">
       <Divider
@@ -90,7 +90,7 @@ export default function TabsEdit() {
         />
       </Divider>
       {loading ? (
-       <Loading/>
+        <Loading />
       ) : (
         <>
           <ChangeImage

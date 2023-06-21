@@ -89,7 +89,7 @@ function MuiAppbar() {
   const fetchUser = async () => {
     try {
       const res = await axios.post(
-        "http://localhost:4000/getUser/",
+        "https://booking-bus.onrender.com/getUser/",
         {},
         {
           headers: {

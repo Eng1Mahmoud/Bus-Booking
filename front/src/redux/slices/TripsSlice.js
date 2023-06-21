@@ -1,21 +1,20 @@
-import { createSlice } from '@reduxjs/toolkit';
-import { persistReducer } from 'redux-persist';
-import storage from 'redux-persist/lib/storage';
-
+import { createSlice } from "@reduxjs/toolkit";
+import { persistReducer } from "redux-persist";
+import storage from "redux-persist/lib/storage";
 
 const initialState = {
   trips: [],
-  themeDark:true,
-  lang:"en"
+  themeDark: true,
+  lang: "en",
 };
 
 const tripsPersistConfig = {
-  key: 'trips',
+  key: "trips",
   storage,
 };
 
 export const TripsSlice = createSlice({
-  name: 'trips',
+  name: "trips",
   initialState,
   reducers: {
     activeTrips: (state, { payload }) => {
@@ -24,14 +23,17 @@ export const TripsSlice = createSlice({
     activeThemeDark: (state, { payload }) => {
       state.themeDark = payload;
     },
-    changLang:(state, { payload })=>{
+    changLang: (state, { payload }) => {
       state.lang = payload;
-    }
+    },
   },
 });
 
-export const { activeTrips, activeThemeDark,changLang } = TripsSlice.actions;
+export const { activeTrips, activeThemeDark, changLang } = TripsSlice.actions;
 
-const persistedTripsReducer = persistReducer(tripsPersistConfig, TripsSlice.reducer);
+const persistedTripsReducer = persistReducer(
+  tripsPersistConfig,
+  TripsSlice.reducer
+);
 
 export default persistedTripsReducer;

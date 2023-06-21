@@ -3,7 +3,7 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-import { Link,useNavigate } from "react-router-dom"; 
+import { Link, useNavigate } from "react-router-dom";
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
@@ -11,7 +11,7 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import background from "../assets/sinin.jpg";
-import { Formik, Form  } from "formik";
+import { Formik, Form } from "formik";
 import axios from "axios";
 import { CircularProgress } from "@mui/material";
 
@@ -20,7 +20,6 @@ const initialValues = {
   LName: "",
   email: "",
   password: "",
-  
 };
 const validate = (values) => {
   const errors = {};
@@ -72,11 +71,10 @@ export default function SignUp() {
   const onSubmit = (values, { resetForm }) => {
     setLoading(true);
     axios
-      .post("http://localhost:4000/SignUp/", values, {
+      .post("https://booking-bus.onrender.com/SignUp/", values, {
         "content-type": "application/json",
       })
       .then((res) => {
-        console.log(res);
         if (res.data.exist) {
           setTimeout(() => {
             setLoading(false);
@@ -89,12 +87,11 @@ export default function SignUp() {
             navigate("/verification");
           }, 1000);
         }
-        
       })
       .catch((err) => {
         console.log(err);
       });
-    console.log(values);
+
     resetForm();
   };
   return (
@@ -104,8 +101,8 @@ export default function SignUp() {
           width: "100%",
           p: [0, 6],
           height: "110vh",
-          backgroundColor: "#1a66b999", 
-          direction:"ltr"
+          backgroundColor: "#1a66b999",
+          direction: "ltr",
         }}
       >
         <Grid container>
@@ -161,13 +158,9 @@ export default function SignUp() {
                           value={values.FName}
                           onChange={handleChange}
                           onBlur={handleBlur}
-                          error={
-                            touched.FName && errors.FName ? true : false
-                          }
+                          error={touched.FName && errors.FName ? true : false}
                           helperText={
-                            touched.FName && errors.FName
-                              ? errors.FName
-                              : ""
+                            touched.FName && errors.FName ? errors.FName : ""
                           }
                         />
                       </Grid>
@@ -180,13 +173,9 @@ export default function SignUp() {
                           value={values.LName}
                           onChange={handleChange}
                           onBlur={handleBlur}
-                          error={
-                            touched.LName && errors.LName ? true : false
-                          }
+                          error={touched.LName && errors.LName ? true : false}
                           helperText={
-                            touched.LName && errors.LName
-                              ? errors.LName
-                              : ""
+                            touched.LName && errors.LName ? errors.LName : ""
                           }
                         />
                       </Grid>
@@ -230,10 +219,9 @@ export default function SignUp() {
                           onBlur={handleBlur}
                         />
                       </Grid>
-                    
                     </Grid>
                     <Typography variant="body1" sx={{ color: "red" }}>
-                      {exist.exist ?  exist.message:""}
+                      {exist.exist ? exist.message : ""}
                     </Typography>
                     <Button
                       type="submit"

@@ -32,7 +32,7 @@ export const ChangeImage = ({ name, oldImage }) => {
   const saveImage = async (base64Image) => {
     try {
       const res = await axios.post(
-        "http://localhost:4000/uploadImage/",
+        "https://booking-bus.onrender.com/uploadImage/",
         { image: base64Image },
         {
           headers: {

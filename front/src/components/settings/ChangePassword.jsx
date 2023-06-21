@@ -6,7 +6,6 @@ import {
   Snackbar,
   SnackbarContent,
   TextField,
-
 } from "@mui/material";
 import React from "react";
 import { Formik, Form, Field } from "formik";
@@ -29,10 +28,10 @@ const validate = (values) => {
 export const ChangePassword = () => {
   const [open, setOpen] = React.useState(false);
   const [result, setResult] = React.useState({});
-  const handleSubmit = async (values,{resetForm}) => {
+  const handleSubmit = async (values, { resetForm }) => {
     try {
       const res = await axios.post(
-        "http://localhost:4000/changePassword/",
+        "https://booking-bus.onrender.com/changePassword/",
         values,
         {
           headers: {
@@ -52,27 +51,23 @@ export const ChangePassword = () => {
   return (
     <Box>
       <Container maxWidth="md">
-      <Snackbar
-       anchorOrigin={{ vertical: "top", horizontal: "center"}}
-        open={open}
-        autoHideDuration={6000}
-        onClose={() => setOpen(false)}
-   
-      >
-         <SnackbarContent sx={{ backgroundColor: result.match?"green":"red"}} message={result.message} />
-      </Snackbar>
+        <Snackbar
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+          open={open}
+          autoHideDuration={6000}
+          onClose={() => setOpen(false)}
+        >
+          <SnackbarContent
+            sx={{ backgroundColor: result.match ? "green" : "red" }}
+            message={result.message}
+          />
+        </Snackbar>
         <Formik
           initialValues={initialValues}
           validate={validate}
           onSubmit={handleSubmit}
         >
-          {({
-            errors,
-            touched,
-            handleChange,
-            handleBlur,
-            isSubmitting,
-          }) => (
+          {({ errors, touched, handleChange, handleBlur, isSubmitting }) => (
             <Form>
               <Box>
                 <Grid container spacing={2} sx={{ py: 5 }}>
@@ -116,7 +111,7 @@ export const ChangePassword = () => {
                   </Grid>
                   <Grid item xs={12}>
                     <Button variant="contained" color="secondary" type="submit">
-                      Save 
+                      Save
                     </Button>
                   </Grid>
                 </Grid>

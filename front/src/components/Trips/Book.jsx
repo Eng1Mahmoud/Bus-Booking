@@ -26,7 +26,7 @@ export default function Book({ tripDetils }) {
   const [seatNumber, setSeatNumber] = React.useState(null);
   const completBook = () => {
     axios.post(
-      "http://localhost:4000/book",
+      "https://booking-bus.onrender.com/book",
       {
         from: tripDetils.from,
         to: tripDetils.to,
@@ -44,7 +44,7 @@ export default function Book({ tripDetils }) {
     );
   };
   // render paypal button
-  
+
   React.useEffect(() => {
     const price = (tripDetils.price / 30).toFixed(2);
     window.paypal
@@ -54,8 +54,7 @@ export default function Book({ tripDetils }) {
             purchase_units: [
               {
                 amount: {
-                  value:price,
-                 
+                  value: price,
                 },
               },
             ],
@@ -93,7 +92,7 @@ export default function Book({ tripDetils }) {
     <Box>
       <Complet opens={openComplet} />
       <Button variant="contained" onClick={handleClickOpen}>
-       {t("Booking Now")} 
+        {t("Booking Now")}
       </Button>
       <Dialog
         open={open}

@@ -31,11 +31,10 @@ export const Verification = () => {
   const onSubmit = (values, { resetForm }) => {
     setLoading(true);
     axios
-      .post("http://localhost:4000/verification", values, {
+      .post("https://booking-bus.onrender.com/verification", values, {
         "content-type": "application/json",
       })
       .then((res) => {
-        console.log(res);
         if (res.data.verification) {
           setTimeout(() => {
             setVerificationStatus({ verified: true, message: "" });

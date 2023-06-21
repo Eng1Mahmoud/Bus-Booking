@@ -24,7 +24,7 @@ const validate = (values) => {
 };
 export const ChangeInfo = ({ oldInformation }) => {
   const [newInformation, setNewInformation] = useState("");
-  const {t} = useTranslation()
+  const { t } = useTranslation();
   const initialValues = {
     FName: newInformation.FName ? newInformation.FName : oldInformation.FName,
     LName: newInformation.LName ? newInformation.LName : oldInformation.LName,
@@ -33,7 +33,7 @@ export const ChangeInfo = ({ oldInformation }) => {
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
       const res = await axios.post(
-        "http://localhost:4000/updateInfo/",
+        "https://booking-bus.onrender.com/updateInfo/",
         values,
         {
           headers: {
@@ -43,14 +43,13 @@ export const ChangeInfo = ({ oldInformation }) => {
         }
       );
       setNewInformation(res.data.result);
-      console.log(res);
     } catch (err) {
       console.log(err);
     }
   };
 
   return (
-    <Container  sx={{ paddingY: "50px" }}>
+    <Container sx={{ paddingY: "50px" }}>
       <Formik
         initialValues={initialValues}
         validate={validate}
@@ -74,7 +73,7 @@ export const ChangeInfo = ({ oldInformation }) => {
                     id="FName"
                     name="FName"
                     value={values.FName}
-                    label= {t("First Name")} 
+                    label={t("First Name")}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     error={touched.FName && errors.FName ? true : false}

@@ -8,7 +8,6 @@ import { useDispatch } from "react-redux";
 const LanguageSwitcher = () => {
   const dispatch = useDispatch();
   const curruntLang = useSelector((state) => state.trips.lang);
-  console.log(curruntLang)
   useEffect(() => {
     i18n.changeLanguage(curruntLang);
     document.dir = i18n.language === "ar" ? "rtl" : "ltr";
