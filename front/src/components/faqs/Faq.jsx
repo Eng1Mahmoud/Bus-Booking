@@ -3,12 +3,14 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  Box,
   Typography,
   Paper,
 } from "@mui/material";
 import { ExpandMore } from "@mui/icons-material";
+import { useTranslation } from "react-i18next";
+
 export default function Faq({ faq, expanded, handleChange }) {
+  const { t} = useTranslation();
   return (
     <Paper elevation={5}>
       <Accordion
@@ -24,12 +26,12 @@ export default function Faq({ faq, expanded, handleChange }) {
           <Typography
             sx={{ color: "main", fontSize: "18px", fontWeight: "bold" }}
           >
-            {faq.title}
+           {t(faq.title)} 
           </Typography>
         </AccordionSummary>
         <AccordionDetails sx={{ backgroundColor: "background.secondary" }}>
           <Typography sx={{ color: "text.main", fontSize: "18px" }}>
-            {faq.body}
+          {t(faq.body)} 
           </Typography>
         </AccordionDetails>
       </Accordion>

@@ -72,8 +72,9 @@ export default function SignIn() {
        
       })
       .then((res) => {
+       
         Cookies.set("token", res.data.token);
-        console.log(Cookies.get("token"));
+        
         if (res.data.exist) {
           setTimeout(() => {
             setLoading(false);
@@ -101,6 +102,7 @@ export default function SignIn() {
           p: [0, 6],
           height: "103vh",
           backgroundColor: "#1a66b999",
+          direction:"ltr"
         }}
       >
         <Grid container sx={{ height: "80%" }}>
@@ -214,11 +216,7 @@ export default function SignIn() {
                       Sign In
                     </Button>
                     <Grid container>
-                      <Grid item xs={12}>
-                        <Link href="#" variant="body2">
-                          Forgot password?
-                        </Link>
-                      </Grid>
+                    
                       <Grid item xs={12}>
                         <Link to="/register" variant="body2">
                           {"Don't have an account? Sign Up"}

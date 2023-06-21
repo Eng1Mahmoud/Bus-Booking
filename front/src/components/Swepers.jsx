@@ -5,7 +5,7 @@ import slide2Image from "../assets/slide-2.jpg";
 import slide3Image from "../assets/slide-3.jpg";
 import slide4Image from "../assets/slide-4.jpg";
 import slide5Image from "../assets/slide-5.jpg";
-import slide7Image from "../assets/slide-7.jpg";
+
 // Import Swiper styles
 import "swiper/css";
 import "swiper/css/pagination";
@@ -13,6 +13,7 @@ import { Pagination, Autoplay } from "swiper";
 import { Box } from "@mui/system";
 const StyledBox = styled.div`
   position: relative;
+  direction:ltr;
   &:after {
     content: "";
     position: absolute;
@@ -32,7 +33,6 @@ const slides = [
   { image: slide4Image, id: 4 },
   { image: slide5Image, id: 5 },
 
-  { image: slide7Image, id: 7 },
 ];
 const Image = styled.img`
   width: 100%;
@@ -59,7 +59,7 @@ export const Swepers = () => {
           return (
             <SwiperSlide key={slide.id}>
               <Box>
-                <Image src={slide.image} alt={`slid${slide.id}`} />
+                <Image src={slide.image} alt={`slid${slide.id}`} loading="lazy"/>
               </Box>
             </SwiperSlide>
           );

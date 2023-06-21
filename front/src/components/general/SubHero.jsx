@@ -4,8 +4,10 @@ import { Link } from "react-router-dom";
 import { Home } from "@mui/icons-material";
 import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
 import { WaveShap } from "./WaveShap";
+import { useTranslation } from "react-i18next";
 
 export const SubHero = ({ background, page }) => {
+  const { t } = useTranslation();
   return (
     <Box
       sx={{
@@ -32,7 +34,7 @@ export const SubHero = ({ background, page }) => {
           color:"text.therd"
         }}
       >
-        <Typography variant="h2" sx={{pb:2}}>{page}</Typography>
+        <Typography variant="h2" sx={{pb:2}}>  {t(`${page}`)}</Typography>
         <Box>
           <Breadcrumbs
             separator={
@@ -56,14 +58,14 @@ export const SubHero = ({ background, page }) => {
             >
               <Home sx={{ mr: 0.5 }} fontSize="large" />
               <Typography variant="h6" component="span">
-                Home
+                {t("Home")}
               </Typography>
             </Link>
 
             <Typography
               sx={{ display: "flex", alignItems: "center", fontSize: "20px",  color:"text.therd" }}
             >
-              {page}
+              {t(`${page}`)}
             </Typography>
           </Breadcrumbs>
         </Box>

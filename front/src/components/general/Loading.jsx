@@ -1,4 +1,4 @@
-import { Avatar, Box, Card, CardHeader, Skeleton } from "@mui/material";
+import { Avatar, Box, Skeleton } from "@mui/material";
 import React from "react";
 
 export const Loading = () => {

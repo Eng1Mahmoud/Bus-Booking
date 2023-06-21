@@ -1,14 +1,18 @@
+import React,{lazy,Suspense} from "react";
 import { createBrowserRouter } from "react-router-dom";
 import { SignInPage } from "./pages/SignInPage"
 import { SignUpPage } from "./pages/SignUpPage"; 
-import { Home } from "./pages/HomePage"
 import { Root } from  "./pages/Root"
-import { FaqPage } from  "./pages/FaqPage"
-import {AboutPage } from  "./pages/AboutPage"
-import {SettingsPage} from "./pages/SettingsPage"
-import { StationsPage } from "./pages/StationsPage";
-import { VerificationPage } from "./pages/verificationPage"; 
-import { TripsPage } from "./pages/TripsPage";
+import {FallbackLoading} from "./components/general/FallbackLoading";
+import NotFound from "./pages/NotFound"
+const Home = lazy(() => import("./pages/HomePage"));
+const AboutPage = lazy(() => import("./pages/AboutPage"));
+const FaqPage = lazy(() => import("./pages/FaqPage"));
+const SettingsPage = lazy(() => import("./pages/SettingsPage"));
+const StationsPage = lazy(() => import("./pages/StationsPage"));
+const VerificationPage = lazy(() => import("./pages/verificationPage"));
+const TripsPage = lazy(() => import("./pages/TripsPage"));
+
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -17,27 +21,27 @@ export const router = createBrowserRouter([
       {
         index: true,
         path: "/",
-        element: <Home />,
+        element: <Suspense fallback={<FallbackLoading/>}><Home /></Suspense>,
       },
       {
         path: "faqs",
-        element: <FaqPage/>,
+        element: <Suspense fallback={<FallbackLoading/>}><FaqPage /></Suspense>,
       },
       {
         path: "about us",
-        element: <AboutPage/>,
+        element: <Suspense fallback={<FallbackLoading/>}><AboutPage /></Suspense>,
       },
       {
         path: "settings",
-        element: <SettingsPage/>,
+        element: <Suspense fallback={<FallbackLoading/>}><SettingsPage /></Suspense>,
       },
       {
         path: "stations",
-        element: <StationsPage/>,
+        element: <Suspense fallback={<FallbackLoading/>}><StationsPage /></Suspense>,
       },
       {
         path: "trips",
-        element: <TripsPage/>,
+        element: <Suspense fallback={<FallbackLoading/>}><TripsPage /></Suspense>,
       }
     ],
   },
@@ -51,6 +55,10 @@ export const router = createBrowserRouter([
   },
   {
     path: "verification",
-    element: <VerificationPage />,
+    element: <Suspense fallback={<FallbackLoading/>}><VerificationPage /></Suspense>,
   },
+  {
+  path:"*",
+  element:<NotFound/>
+  }
 ]);

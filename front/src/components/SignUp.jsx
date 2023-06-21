@@ -22,7 +22,6 @@ const initialValues = {
   password: "",
   
 };
-
 const validate = (values) => {
   const errors = {};
 
@@ -64,7 +63,6 @@ function Copyright(props) {
     </Typography>
   );
 }
-
 const theme = createTheme();
 
 export default function SignUp() {
@@ -106,7 +104,8 @@ export default function SignUp() {
           width: "100%",
           p: [0, 6],
           height: "110vh",
-          backgroundColor: "#1a66b999",
+          backgroundColor: "#1a66b999", 
+          direction:"ltr"
         }}
       >
         <Grid container>

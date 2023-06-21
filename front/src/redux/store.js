@@ -1,7 +1,13 @@
-import { configureStore } from '@reduxjs/toolkit'
-import TripsSlice from './slices/TripsSlice'
-export const store = configureStore({
+import { configureStore } from '@reduxjs/toolkit';
+import persistedTripsReducer from './slices/TripsSlice';
+import { persistStore } from 'redux-persist';
+
+const store = configureStore({
   reducer: {
-    TripsSlice
+    trips: persistedTripsReducer,
   },
-})
+});
+
+const persistor = persistStore(store);
+
+export { store, persistor };

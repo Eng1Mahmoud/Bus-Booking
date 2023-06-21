@@ -41,7 +41,7 @@ export const ChangeImage = ({ name, oldImage }) => {
           },
         }
       );
-      console.log(res);
+      
       setImage(res.data.result.image);
     } catch (err) {
       console.log(err);
@@ -66,7 +66,7 @@ export const ChangeImage = ({ name, oldImage }) => {
               alignItems: "top",
             }}
           >
-            <Box sx={{ position: "relative" }}>
+            <Box sx={{ position: "relative",border:"1px solid text.main !important" }}>
               <img
                 src={image ? image : oldImage ? oldImage : fixedImage}
                 alt="profile"
@@ -86,8 +86,8 @@ export const ChangeImage = ({ name, oldImage }) => {
                 variant="h4"
                 sx={{
                   pt: 3,
-                  pl: 2,
-                  color: "main",
+                  px: 3,
+                  color: "text.main",
                   textTransform: "capitalize",
                 }}
               >

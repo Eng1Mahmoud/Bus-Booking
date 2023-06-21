@@ -18,6 +18,7 @@ import {
   Typography,
   Menu,
   MenuItem,
+
 } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
 import InfoIcon from "@mui/icons-material/Info";
@@ -34,10 +35,13 @@ import logo from "../../assets/logo.png";
 import { useNavigate } from "react-router-dom";
 import ThemMode from "./ThemMode";
 import axios from "axios";
-
-const pages = ["home", "stations", "about Us", "fAQs", "login", "register"];
+import LanguageSwitcher from "./ChangLang";
+import { useTranslation } from "react-i18next";
+import profileImage from "../../assets/profile.png";
+const pages = ["Home", "Stations", "About Us", "Faqs", "Login", "Register"];
 
 function MuiAppbar() {
+  const { t, } = useTranslation();
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
   const [open, setOpen] = useState(false);
@@ -100,8 +104,10 @@ function MuiAppbar() {
     }
   };
   React.useEffect(() => {
-    fetchUser();
-  }, []);
+    if (Cookies.get("token")) {
+      fetchUser();
+    }
+  },[]);
 
   return (
     <>
@@ -132,6 +138,7 @@ function MuiAppbar() {
                 <img
                   src={logo}
                   alt="logo"
+                  loading="lazy"
                   style={{
                     width: "120px",
                     height: "40px",
@@ -151,32 +158,35 @@ function MuiAppbar() {
             >
               {pages.map((page) => (
                 <Link
-                  to={page === "home" ? "/" : page}
+                  to={page === "Home" ? "/" : page}
                   key={page}
                   style={{
                     margin: "10px",
                     color: "white",
                     display: "block",
-                    fontSize: "18px",
-                    fontWeight: "600px",
+                    fontSize: "17px",
+                  
                     textDecoration: "none",
                     textTransform: "capitalize",
                   }}
                 >
-                  {page}
+                  {t(page)}
                 </Link>
               ))}
             </Box>
             <ThemMode />
+            <Box sx={{px:[0,0,2]}}>
+            <LanguageSwitcher />
+            </Box>
             {
               // render user avatar if user is logged in
               Cookies.get("token") ? (
-                <Box sx={{ flexGrow: 0 }}>
+                <Box sx={{ flexGrow: 0,display:["none","none","flex"] }}>
                   <Tooltip title="Open settings">
                     <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                       <Avatar
-                        alt="Remy Sharp"
-                        src={user.image}
+                        alt="Profile Picture"
+                        src={user.image? user.image: profileImage}
                         sx={{ width: 45, height: 45 }}
                       />
                     </IconButton>
@@ -201,6 +211,7 @@ function MuiAppbar() {
                       <MenuItem
                         key={setting}
                         onClick={() => handleCloseUserMenu(setting)}
+                        sx={{fontSize:"20px"}}
                       >
                         <Typography textAlign="center">{setting}</Typography>
                       </MenuItem>
@@ -235,6 +246,7 @@ function MuiAppbar() {
             backgroundColor: "background.therd",
             height: "100%",
             position: "relative",
+            px:2
           }}
         >
           <CloseIcon
@@ -251,10 +263,10 @@ function MuiAppbar() {
           />
           <List sx={{ marginTop: "45px" }}>
             {[
-              { text: "home", icon: <HomeIcon sx={{ color: "white" }} /> },
-              { text: "about Us", icon: <InfoIcon sx={{ color: "white" }} /> },
-              { text: "stations", icon: <StoreIcon sx={{ color: "white" }} /> },
-              { text: "faqs", icon: <QuizIcon sx={{ color: "white" }} /> },
+              { text: "Home", icon: <HomeIcon sx={{ color: "white" }} /> },
+              { text: "About Us", icon: <InfoIcon sx={{ color: "white" }} /> },
+              { text: "Stations", icon: <StoreIcon sx={{ color: "white" }} /> },
+              { text: "Faqs", icon: <QuizIcon sx={{ color: "white" }} /> },
             ].map((Item, index) => (
               <ListItem
                 key={Item.text}
@@ -264,7 +276,7 @@ function MuiAppbar() {
                 <ListItemButton>
                   <ListItemIcon>{Item.icon}</ListItemIcon>
                   <ListItemText
-                    primary={Item.text}
+                    primary={t(Item.text)}
                     sx={{ color: "white", textTransform: "capitalize" }}
                   />
                 </ListItemButton>
@@ -275,10 +287,10 @@ function MuiAppbar() {
           <List>
             {[
               {
-                text: "register",
+                text: "Register",
                 icon: <AppRegistrationIcon sx={{ color: "white" }} />,
               },
-              { text: "login", icon: <LoginIcon sx={{ color: "white" }} /> },
+              { text: "Login", icon: <LoginIcon sx={{ color: "white" }} /> },
             ].map((Item, index) => (
               <ListItem
                 key={Item.text}
@@ -288,7 +300,7 @@ function MuiAppbar() {
                 <ListItemButton>
                   <ListItemIcon>{Item.icon}</ListItemIcon>
                   <ListItemText
-                    primary={Item.text}
+                    primary={t(Item.text)}
                     sx={{ color: "white", textTransform: "capitalize" }}
                   />
                 </ListItemButton>
@@ -303,7 +315,7 @@ function MuiAppbar() {
                       <SignOutIcon sx={{ color: "white" }} />
                     </ListItemIcon>
                     <ListItemText
-                      primary="LogOut"
+                      primary={t("LogOut")}
                       sx={{ color: "white", textTransform: "capitalize" }}
                     />
                   </ListItemButton>
@@ -326,7 +338,7 @@ function MuiAppbar() {
                     <IconButton sx={{ p: 0 }}>
                       <Avatar
                         alt="Remy Sharp"
-                        src={user.image}
+                        src={user.image? user.image:profileImage}
                         sx={{ width: 45, height: 45 }}
                       />
                     </IconButton>
@@ -335,9 +347,9 @@ function MuiAppbar() {
                 <Box sx={{ ml: "10px" }}>
                   <Typography
                     variant="body1"
-                    sx={{ color: "white", fontWeight: "500px" }}
+                    sx={{ color: "white", fontWeight: "500px",px:2}}
                   >
-                    {user.FName} {user.LName}
+                     { user.FName? user.FName :null} {user.LName? user.LName :null}
                   </Typography>
                 </Box>
               </Box>

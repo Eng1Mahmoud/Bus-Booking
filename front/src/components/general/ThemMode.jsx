@@ -2,9 +2,7 @@ import * as React from "react";
 import { styled } from "@mui/material/styles";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
-import Cookies from "js-cookie";
-import TripsSlice from "../../redux/slices/TripsSlice";
-import { acticeThemDark } from "../../redux/slices/TripsSlice";
+import { activeThemeDark } from "../../redux/slices/TripsSlice";
 import { useDispatch } from "react-redux";
 const MaterialUISwitch = styled(Switch)(({ theme }) => ({
   width: 62,
@@ -53,20 +51,18 @@ const MaterialUISwitch = styled(Switch)(({ theme }) => ({
   },
 }));
 export default function CustomizedSwitches() {
-    const [checked, setChecked] = React.useState(false);
-    const dispatch = useDispatch()
-    const handleDarkModeToggle = (event) => {
-        setChecked(event.target.checked);
-       dispatch(acticeThemDark(event.target.checked))
-       Cookies.set("themDark",event.target.checked)
-       localStorage.setItem("themDark",event.target.checked)
-    };
+  const [checked, setChecked] = React.useState(true);
+  const dispatch = useDispatch();
+  const handleDarkModeToggle = (event) => {
+    dispatch(activeThemeDark(event.target.checked));
+    setChecked(event.target.checked);
+  };
+
   return (
     <FormControlLabel
       control={<MaterialUISwitch sx={{ m: 1 }} defaultChecked />}
       checked={checked}
       onChange={handleDarkModeToggle}
-  
     />
   );
 }

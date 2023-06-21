@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, Container, Paper, Typography, Stack } from "@mui/material";
 import Faq from "./Faq";
-
+import { useTranslation } from "react-i18next";
 const faqs = [
   {
     id: 1,
@@ -40,6 +40,7 @@ const faqs = [
   },
 ];
 export const Faqs = () => {
+  const { t} = useTranslation();
   const [expanded, setExpanded] = React.useState(false);
 
   const handleChange = (panel) => (event, newExpanded) => {
@@ -59,7 +60,7 @@ export const Faqs = () => {
                 fontSize: "23px",
               }}
             >
-              Frequently Asked Questions
+              {t("Frequently Asked Questions")}
             </Typography>
           </Box>
 

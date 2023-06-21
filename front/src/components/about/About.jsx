@@ -2,6 +2,7 @@ import React from "react";
 import { Grid, Box, Typography, Divider, Chip, Button } from "@mui/material";
 import serves from "../../assets/about.png";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 const aboutP = [
   {
     id: 1,
@@ -18,13 +19,14 @@ const aboutP = [
   },
 ];
 export const About = () => {
+  const { t } = useTranslation();
   return (
     <Grid container rowSpacing={3} justifyContent="center">
       <Grid item xs={12} md={6} p={5} sx={{ color: "text.main" }}>
         <Box>
           <Divider textAlign="left" sx={{ color: "text.main" }}>
             <Chip
-              label="About Us"
+              label={t("About Us")}
               sx={{
                 backgroundColor: "background.secondary",
                 color: "text.main",
@@ -41,7 +43,7 @@ export const About = () => {
               fontSize: ["30px", "50px"],
             }}
           >
-            About Tazkarty Bus Company
+            {t("About Tazkarty Bus Company")}
           </Typography>
 
           <Box>
@@ -50,19 +52,19 @@ export const About = () => {
                 variant="body1"
                 component="p"
                 key={p.id}
-                sx={{ color: "main", paddingY: 2 }}
+                sx={{ color: "main", paddingY: 2,fontSize: ["15px", "20px"] }}
               >
-                {p.body}
+                {t(p.body)}
               </Typography>
             ))}
             <Button
               variant="contained"
-              sx={{ paddingX: 4, paddingY: 2, fontWeight: "bold" }}
+              sx={{ paddingX: 4, paddingY: 1, fontWeight: "bold",fontSize:"25px",marginTop:3 }}
               component={Link}
               to="/"
             >
               {" "}
-              Booking Now
+              {t("Booking Now")}
             </Button>
           </Box>
         </Box>
@@ -72,6 +74,7 @@ export const About = () => {
           <img
             src={serves}
             alt="about"
+            loading="lazy"
             style={{ width: "100%", height: "550px" }}
           />
         </Box>

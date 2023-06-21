@@ -3,7 +3,7 @@ import { SubAbout } from '../components/about/SubAbout'
 import { SubHero } from '../components/general/SubHero'
 import about from "../assets/aboutHero.jpg"
 import { Box } from '@mui/material'
-export const AboutPage = () => {
+ const AboutPage = () => {
   return (
     <Box>
         <SubHero background={about} page="About Us"/>
@@ -11,3 +11,4 @@ export const AboutPage = () => {
     </Box>
   )
 }
+export default AboutPage

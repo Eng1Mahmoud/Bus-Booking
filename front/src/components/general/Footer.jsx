@@ -11,7 +11,9 @@ import {
   ListItem,
   Stack,
 } from "@mui/material";
-import { Phone, Facebook, Twitter, LinkedIn } from "@mui/icons-material";
+import { Phone, Telegram,Facebook, LinkedIn } from "@mui/icons-material";
+
+import { useTranslation } from "react-i18next";
 const styleLink = {
   textDecoration: "none",
   color: "white",
@@ -21,6 +23,7 @@ const styleLink = {
 };
 const year = 2023;
 export const Footer = () => {
+  const { t } = useTranslation();
   return (
     <Box
       sx={{
@@ -45,6 +48,7 @@ export const Footer = () => {
                 <img
                   src={logo}
                   alt="logo"
+                  loading="lazy"
                   style={{ width: "100px", height: "100px" }}
                 />
               </Link>
@@ -54,17 +58,17 @@ export const Footer = () => {
             <List>
               <ListItem>
                 <Link to="/" style={styleLink}>
-                  Boock Now
+                  {t("Booking Now")}
                 </Link>
               </ListItem>
               <ListItem>
                 <Link to="/faqs" style={styleLink}>
-                  FAQ
+                  {t("Faqs")}
                 </Link>
               </ListItem>
               <ListItem>
                 <Link to="/register" style={styleLink}>
-                  Register
+                  {t("Register")}
                 </Link>
               </ListItem>
             </List>
@@ -73,37 +77,37 @@ export const Footer = () => {
             <List>
               <ListItem>
                 <Link to="/about us" style={styleLink}>
-                  About Us
+                 {t("About Us")} 
                 </Link>
               </ListItem>
               <ListItem>
                 <a href="#Services" style={styleLink}>
-                  Services
+                  {t("Services")}
                 </a>
               </ListItem>
               <ListItem>
                 <Link to="/stations" style={styleLink}>
-                  Stations
+                  {t("Stations")}
                 </Link>
               </ListItem>
             </List>
           </Grid>
           <Grid item xs={12} sm={6} md={3} paddingTop={2}>
-            <Typography variant="h5">Contact Us</Typography>
+            <Typography variant="h5">{t("Contact Us")}</Typography>
             <Typography variant="h4" component="p" p={2} fontWeight="bold">
               {" "}
-              <Phone fontSize="large" /> 16128
+              <Phone fontSize="medium" />   <a href={`tel:01201453941`} style={{ color: "white",textDecoration:"none",fontSize:"20px" }}>01201453941 </a> 
             </Typography>
             <Stack direction="row" spacing={2} paddingLeft={3}>
-              <Link to="" style={{ color: "white" }}>
+             <a href="https://www.facebook.com/profile.php?id=100082996239556" target="_blank" style={{ color: "white" }}>
                 <Facebook fontSize="medium" />
-              </Link>
-              <Link to="" style={{ color: "white" }}>
-                <Twitter fontSize="medium" />
-              </Link>
-              <Link to="" style={{ color: "white" }}>
+              </a>
+              <a href="https://t.me/MahmoudRdwann" target="_blank" style={{ color: "white" }}>
+                <Telegram fontSize="medium" />
+              </a>
+              <a href="https://www.linkedin.com/in/Mahmoud-Mohamed-Abdel-Aal" target="_blank" style={{ color: "white" }}>
                 <LinkedIn fontSize="medium" />
-              </Link>
+              </a>
             </Stack>
           </Grid>
         </Grid>
@@ -117,13 +121,13 @@ export const Footer = () => {
             color: "text.therd",
           }}
         >
-          All Copyrights revserved for &copy; {year}{" "}
+         {t("All Copyrights revserved for")}  &copy; {year}{" "}
           <Typography
             variant="h6"
             component="span"
             sx={{ color: "text.therd", fontWeight: "bold" }}
           >
-            Tazkarty
+            {t("Tazkarty")}
           </Typography>
         </Box>
       </Container>

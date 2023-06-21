@@ -2,8 +2,7 @@ import { Box } from '@mui/material'
 import { SubHero } from '../components/general/SubHero'
 import stationsImage from "../assets/station.jpg";
 import { StationContainer } from '../components/stations/StationContainer';
-
-export const StationsPage = () => {
+const StationsPage = () => {
   return (
     <Box>
     <SubHero page="Stations" background={stationsImage}/> 
@@ -11,3 +10,5 @@ export const StationsPage = () => {
     </Box>
   )
 }
+
+export default StationsPage

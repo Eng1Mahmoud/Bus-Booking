@@ -130,4 +130,21 @@ export const changePassword = (req, res) => {
     })
  })
 };
+
+// get all users
+export const getAllUsers = (req, res) => {
+  User.find().then((result) => {
+    res.status(200).json({ message: "All users", result });
+  });
+};
+
+// delete user
+export const deleteUser = (req,res) =>{
+  
+    User.findOneAndDelete(req.params.email).then((result)=>{
+      res.status(200).json({message:"User deleted",result})
+    }).catch((err)=>{
+      console.log(err)
+    })
+}
 export default SignUp;

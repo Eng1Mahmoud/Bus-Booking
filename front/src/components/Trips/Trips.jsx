@@ -21,9 +21,11 @@ import busImage from "../../assets/busTiket.jpg";
 import notFoundTrips from "../../assets/notFoundTrips.png";
 import Book from "./Book";
 import SentimentVeryDissatisfiedIcon from '@mui/icons-material/SentimentVeryDissatisfied';
+import { useTranslation } from "react-i18next";
 export const Trips = () => {
+  const { t } = useTranslation();
   const [allTrips, SetAllTrips] = useState([]);
-  const trips = useSelector((state) => state.TripsSlice.trips);
+  const trips = useSelector((state) => state.trips.trips);
   useEffect(() => {
     SetAllTrips(trips);
   }, [trips]);
@@ -39,7 +41,7 @@ export const Trips = () => {
           }}
         >
           <Chip
-            label="Avilable Trips"
+            label={t("Avilable Trips")}
             sx={{ fontSize: "25px", color: "main", padding: "3px" }}
           />
         </Divider>
@@ -55,6 +57,7 @@ export const Trips = () => {
                         component="img"
                         image={busImage}
                         alt="bus"
+                        loading="lazy"
                         sx={{ height: "300px" }}
                       />
                       <CardContent>
@@ -62,11 +65,11 @@ export const Trips = () => {
                           variant="body1"
                           sx={{ fontWeight: "bold", paddingBottom: "5px" }}
                         >
-                          {allTrips[0].from}
+                          {t(allTrips[0].from)}
                           <LocationOnIcon
                             sx={{ color: "main", fontSize: "17px" }}
                           />
-                          {allTrips[0].to}
+                          {t(allTrips[0].to)}
                         </Typography>
                         <Typography variant="body1" sx={{ fontWeight: "bold" }}>
                           {allTrips[0].date}{" "}
@@ -102,17 +105,18 @@ export const Trips = () => {
             })
           ) : (
             <>
-              <Grid item xs={12} md={6}>
-                <Box>
-                  <img src={notFoundTrips} alt="not found" style={{}} />
-                </Box>
-              </Grid>
+             
 
               <Grid item xs={12} md={6}>
                 <Typography sx={{ color: "text.main",fontSize:"40px" }}>
-                  Unfortunately, there are no Trips matching the data entered
+                  {t("Unfortunately, there are no Trips matching the data entered")}
                   <SentimentVeryDissatisfiedIcon sx={{color:"error.main",fontSize:"40px" ,ml:3,}}/>
                 </Typography>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Box >
+                  <img src={notFoundTrips} alt="not found" loading="lazy" style={{width:"100%",height:"100%"}}/>
+                </Box>
               </Grid>
             </>
           )}

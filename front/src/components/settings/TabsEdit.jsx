@@ -2,7 +2,6 @@ import * as React from "react";
 import PropTypes from "prop-types";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
-import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import { Chip, Container, Divider } from "@mui/material";
 import { ChangeImage } from "./ChangeImage";
@@ -11,6 +10,7 @@ import { ChangeInfo } from "./ChangeInfo";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { Loading } from "../general/Loading";
+import { useTranslation } from "react-i18next";
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
   return (
@@ -45,6 +45,7 @@ function a11yProps(index) {
 export default function TabsEdit() {
   const [loading, setLoading] = React.useState(true);
   const [user, setUser] = React.useState({});
+  const {t} = useTranslation()
   const fetchUser = async () => {
     try {
       const res = await axios.post(
@@ -68,8 +69,9 @@ export default function TabsEdit() {
     setValue(newValue);
   };
   React.useEffect(() => {
-    fetchUser();
-    console.log("render");
+    if(Cookies.get("token")){
+      fetchUser();
+    }
   },[user.image]);
   return (
     <Container maxWidth="md">
@@ -102,8 +104,8 @@ export default function TabsEdit() {
                 onChange={handleChange}
                 aria-label="basic tabs example"
               >
-                <Tab label="Edit" {...a11yProps(0)} />
-                <Tab label="Edit Password" {...a11yProps(1)} />
+                <Tab label={t("Edit")} {...a11yProps(0)} />
+                <Tab label={t("Edit Password")} {...a11yProps(1)} />
               </Tabs>
             </Box>
             <TabPanel value={value} index={0}>

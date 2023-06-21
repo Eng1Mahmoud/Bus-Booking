@@ -12,11 +12,13 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import Complet from "./Complet";
+import { useTranslation } from "react-i18next";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
 export default function Book({ tripDetils }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [showPide, setShowPide] = React.useState(false);
   const [open, setOpen] = React.useState(false);
@@ -42,7 +44,9 @@ export default function Book({ tripDetils }) {
     );
   };
   // render paypal button
+  
   React.useEffect(() => {
+    const price = (tripDetils.price / 30).toFixed(2);
     window.paypal
       .Buttons({
         createOrder: function (data, actions) {
@@ -50,7 +54,7 @@ export default function Book({ tripDetils }) {
             purchase_units: [
               {
                 amount: {
-                  value: tripDetils.price ,
+                  value:price,
                  
                 },
               },
@@ -80,7 +84,7 @@ export default function Book({ tripDetils }) {
   const bookTrip = (SeatNumber) => {
     setSeatNumber(SeatNumber);
     if (!Cookies.get("token")) {
-      navigate("/signin");
+      navigate("/login");
     } else {
       setShowPide(true);
     }
@@ -89,7 +93,7 @@ export default function Book({ tripDetils }) {
     <Box>
       <Complet opens={openComplet} />
       <Button variant="contained" onClick={handleClickOpen}>
-        Book Now
+       {t("Booking Now")} 
       </Button>
       <Dialog
         open={open}
@@ -107,8 +111,8 @@ export default function Book({ tripDetils }) {
           }}
         >
           {showPide
-            ? "Complet Pay with PayPal"
-            : " Choose your seat and start booking"}
+            ? t("Complet Pay with PayPal")
+            : t("Choose your seat and start booking")}
         </DialogTitle>
         <DialogContent sx={{ paddingTop: "20px" }}>
           {showPide ? (
@@ -166,7 +170,7 @@ export default function Book({ tripDetils }) {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} variant="contained">
-            Close
+            {t("Close")}
           </Button>
         </DialogActions>
       </Dialog>

@@ -1,7 +1,9 @@
 import { Box, Container, Grid,Typography } from "@mui/material";
 import { GoogleMap } from "./GoogleMap";
 import { Stations } from "./stations";
+import { useTranslation } from "react-i18next";
 export const StationContainer = () => {
+  const { t } = useTranslation();
   return (
     <Box sx={{ paddingY: 3, marginY: 3}}>
       <Container>
@@ -15,7 +17,7 @@ export const StationContainer = () => {
                 fontSize: "25px",
               }}
             >
-            Tazkarty Stations On Egypt
+           {t("Tazkarty Stations On Egypt")}
             </Typography>
           </Box>
         <Grid container >

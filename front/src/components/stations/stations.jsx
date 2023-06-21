@@ -1,11 +1,11 @@
 import React from "react";
-import { Box, Container, Paper, Typography, Stack } from "@mui/material";
+import { Box, Paper, Stack } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import Station from "./station";
 const CustomPaper = styled(Paper)(({ theme }) => ({
   height: "500px",
   overflowY: "scroll",
-  overflowY: "scroll",
+
   "&::-webkit-scrollbar": {
     width: "8px",
     backgroundColor: "#fff",

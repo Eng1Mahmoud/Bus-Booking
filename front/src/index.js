@@ -1,22 +1,21 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
-import { ThemeProvider } from "@mui/material/styles";
 import reportWebVitals from "./reportWebVitals";
 import "./App.css";
-import { theme } from "./them.js";
-import { themeDark } from "./them.js";
 import { RouterProvider } from "react-router-dom";
 import { router } from "./Router";
 import { Provider } from "react-redux";
-import { store } from "./redux/store";
+import { PersistGate } from "redux-persist/integration/react";
+import { store, persistor } from "./redux/store";
+
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <React.StrictMode>
-    <Provider store={store}>
+  <Provider store={store}>
+    <PersistGate loading={null} persistor={persistor}>
       <RouterProvider router={router} />
-    </Provider>
-  </React.StrictMode>
+    </PersistGate>
+  </Provider>
 );
 
 reportWebVitals();

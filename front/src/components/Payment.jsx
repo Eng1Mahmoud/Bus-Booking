@@ -1,9 +1,10 @@
 import React from "react";
-import { Container, Grid, Box, Typography, Paper, Button } from "@mui/material";
+import { Container, Grid, Box, Typography, Button } from "@mui/material";
 import pay1 from "../assets/paypal.png";
 import { useInView } from "react-intersection-observer";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 const payment = [
   {
     id: 1,
@@ -12,6 +13,7 @@ const payment = [
 ];
 
 export const Payment = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [ref, inView] = useInView({ threshold: 0.1, triggerOnce: true });
   return (
@@ -21,20 +23,20 @@ export const Payment = () => {
           variant="h2"
           sx={{
             width: ["100%", "100%", "70%", "60%"],
-            fontSize: ["20px", "20px", "50px"],
+            fontSize: ["20px", "20px", "60px"],
             paddingBottom: 3,
             fontWeight: "bold",
             margin: "auto",
             color: "text.main",
           }}
         >
-          Secure and Convenient Payment Methods
+          {t("Secure and Convenient Payment Methods")}
         </Typography>
         <Typography
           variant="h6"
           sx={{
             width: ["100%", "100%", "70%", "60%"],
-            fontSize: "25px",
+            fontSize: "30px",
             paddingBottom: 3,
             fontWeight: "bold",
             margin: "auto",
@@ -42,7 +44,7 @@ export const Payment = () => {
           }}
           component="p"
         >
-          You can pay using Paypal
+         {t("You can pay using Paypal")} 
         </Typography>
       </Box>
       <Grid
@@ -67,6 +69,7 @@ export const Payment = () => {
                     className="img-fluid"
                     src={item.image}
                     alt="payment"
+                    loading="lazy"
                     style={{ width: "100%" }}
                   />
                 </Box>
@@ -86,13 +89,13 @@ export const Payment = () => {
             color: "text.main",
           }}
         >
-          OR
+          {t("OR")}
         </Typography>
         <Typography
           variant="h6"
           sx={{
             width: ["100%", "100%", "70%", "60%"],
-            fontSize: "25px",
+            fontSize: "30px",
             paddingBottom: 3,
             fontWeight: "bold",
             margin: "auto",
@@ -100,14 +103,14 @@ export const Payment = () => {
           }}
           component="p"
         >
-          Reserve your ticket at one of our stations
+          {t("Reserve your ticket at one of our stations")}
         </Typography>
         <Button
           variant="contained"
           sx={{ fontWeight: "bold", paddingX: 4, paddingY: 1 }}
           onClick={() => navigate("/stations")}
         >
-          Find Us
+          {t("Find Us")}
         </Button>
       </Box>
     </Container>

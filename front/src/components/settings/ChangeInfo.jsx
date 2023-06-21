@@ -3,6 +3,7 @@ import axios from "axios";
 import { Formik, Form, Field } from "formik";
 import Cookies from "js-cookie";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 const validate = (values) => {
   const errors = {};
   if (!values.FName) {
@@ -23,6 +24,7 @@ const validate = (values) => {
 };
 export const ChangeInfo = ({ oldInformation }) => {
   const [newInformation, setNewInformation] = useState("");
+  const {t} = useTranslation()
   const initialValues = {
     FName: newInformation.FName ? newInformation.FName : oldInformation.FName,
     LName: newInformation.LName ? newInformation.LName : oldInformation.LName,
@@ -48,7 +50,7 @@ export const ChangeInfo = ({ oldInformation }) => {
   };
 
   return (
-    <Container maxWidth="md" sx={{ paddingY: "50px" }}>
+    <Container  sx={{ paddingY: "50px" }}>
       <Formik
         initialValues={initialValues}
         validate={validate}
@@ -72,7 +74,7 @@ export const ChangeInfo = ({ oldInformation }) => {
                     id="FName"
                     name="FName"
                     value={values.FName}
-                    label="First Name"
+                    label= {t("First Name")} 
                     onChange={handleChange}
                     onBlur={handleBlur}
                     error={touched.FName && errors.FName ? true : false}
@@ -87,7 +89,7 @@ export const ChangeInfo = ({ oldInformation }) => {
                     fullWidth
                     id="LName"
                     name="LName"
-                    label="Last Name"
+                    label={t("Last Name")}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     error={touched.LName && errors.LName ? true : false}
@@ -102,7 +104,7 @@ export const ChangeInfo = ({ oldInformation }) => {
                     fullWidth
                     id="email"
                     name="email"
-                    label="Email"
+                    label={t("Email")}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     error={touched.email && errors.email ? true : false}
@@ -118,7 +120,7 @@ export const ChangeInfo = ({ oldInformation }) => {
                     type="submit"
                     disabled={isSubmitting || Object.keys(errors).length > 0}
                   >
-                    Save
+                    {t("Save")}
                   </Button>{" "}
                 </Grid>
               </Grid>

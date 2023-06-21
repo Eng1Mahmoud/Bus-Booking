@@ -1,16 +1,13 @@
-import {
-  Container,
-  Grid,
-  Paper,
-  Typography,
-  ImageListItem,
-} from "@mui/material";
+import { Container, Grid, Paper, Typography } from "@mui/material";
 import { Box, Button } from "@mui/material";
 import React from "react";
-import serves from "../assets/serves.png";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
+import { useTranslation } from "react-i18next";
+import { Earth } from "./Earth";
+import { Canvas } from "@react-three/fiber";
+import { useMediaQuery } from "@mui/material";
 const Data = [
   {
     title: "Get Real Comfort",
@@ -29,36 +26,32 @@ const Data = [
   },
 ];
 export const Serves = () => {
+  const isSm = useMediaQuery("(max-width: 600px)");
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [ref, inView] = useInView({ threshold: 0.0001, triggerOnce: true });
   return (
     <Container sx={{ paddingY: 6 }} id="Services">
-      <Box sx={{ textAlign: "center" }} >
+      <Box sx={{ textAlign: "center" }}>
         <Box>
           <Typography
             variant="h2"
             sx={{
               width: ["100%", "100%", "60%"],
-              fontSize: ["20px", "20px", "50px"],
+              fontSize: ["20px", "20px", "60px"],
               fontWeight: "bold",
               margin: "auto",
               color: "text.main",
               marginBottom: 4,
             }}
           >
-            The Best Public Transportation in Egypt
+            {t("The Best Public Transportation in Egypt")}
           </Typography>
         </Box>
 
-        <Box>
-          <img
-            src={serves}
-            alt="serves"
-            style={{
-              width: "70%",
-            }}
-          />
-        </Box>
+        <Canvas style={{ height: isSm ? "200px" : "500px" }}>
+          <Earth />
+        </Canvas>
       </Box>
 
       <Grid container spacing={3} sx={{ paddingY: 4 }}>
@@ -74,11 +67,11 @@ export const Serves = () => {
                 elevation={10}
                 sx={{ padding: 3, color: "text.main", borderRadius: "20px" }}
               >
-                <Typography variant="h5" component="h2">
-                  {item.title}
+                <Typography variant="h5" component="h3">
+                  {t(item.title)}
                 </Typography>
-                <Typography variant="body1" component="p">
-                  {item.body}
+                <Typography variant="body1" component="p" sx={{fontSize:"18px"}}>
+                  {t(item.body)}
                 </Typography>
               </Paper>
             </motion.div>
@@ -94,22 +87,25 @@ export const Serves = () => {
             m: 2,
             fontWeight: "bold",
             width: ["90%", "90%", "auto"],
+            fontSize: "19px",
+         
           }}
           onClick={() => navigate("/")}
         >
-          Booking Now
+          {t("Booking Now")}
         </Button>
         <Button
           variant="outlined"
           sx={{
             padding: 2,
             m: 2,
+            fontSize: "19px",
             fontWeight: "bold",
             width: ["90%", "90%", "auto"],
           }}
           onClick={() => navigate("/register")}
         >
-          Creat Acount
+          {t("Creat Acount")}
         </Button>
       </Box>
     </Container>

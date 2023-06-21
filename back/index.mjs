@@ -7,6 +7,8 @@ import sendMail from "./controlar/mailFunction.mjs";
 import user from "./routes/user.mjs"
 import Search from "./routes/search.mjs"
 import books from "./routes/book.mjs"
+import {admins} from "./routes/admins.mjs"
+import {trips} from "./routes/trips.mjs"
 dotenv.config();
 const PORT = process.env.PORT || 3000;
 const app = express();
@@ -28,7 +30,8 @@ mongoose
 user(app)
 Search(app)
 books(app)
-
+admins(app)
+trips(app)
 app.get("/", (req, res) => {
   res.send("Hello World");
 });

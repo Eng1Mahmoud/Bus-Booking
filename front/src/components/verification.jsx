@@ -125,13 +125,12 @@ export const Verification = () => {
             <Button
               variant="contained"
               sx={{ marginTop: "10px" }}
-              onClick={() => navigate("/signin")}
+              onClick={() => navigate("/login")}
             >
               Return to Login Page
             </Button>
           </Box>
         )}
-
         {verificationStatus.message && (
           <Box>
             <h1>Verification failed!</h1>

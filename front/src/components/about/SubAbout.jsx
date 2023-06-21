@@ -10,6 +10,7 @@ import {
 import { Link } from "react-router-dom";
 import subabout from "../../assets/subabout.jpg";
 import React from "react";
+import { useTranslation } from "react-i18next";
 const aboutP = [
   {
     id: 1,
@@ -33,6 +34,7 @@ const aboutP = [
   },
 ];
 export const SubAbout = () => {
+  const { t } = useTranslation();
   return (
     <Box sx={{ paddingY: 5, paddingX: [0, 0, 3] }}>
       <Container>
@@ -41,7 +43,7 @@ export const SubAbout = () => {
             <Box>
               <Divider textAlign="left" sx={{ color: "text.main" }}>
                 <Chip
-                  label="About Us"
+                  label={t("About Us")}
                   sx={{
                     backgroundColor: "background.secondary",
                     color: "text.main",
@@ -58,7 +60,7 @@ export const SubAbout = () => {
                   fontSize: ["30px", "50px"],
                 }}
               >
-                About Tazkarty Bus Company
+               {t("About Tazkarty Bus Company")} 
               </Typography>
               <Box sx={{color:"text.main"}}>
                 {aboutP.map((p) => (
@@ -66,19 +68,19 @@ export const SubAbout = () => {
                     variant="body1"
                     component="p"
                     key={p.id}
-                    sx={{ color: "main", paddingY: 2 }}
+                    sx={{ color: "main", paddingY: 2,fontSize:"18px" }}
                   >
-                    {p.body}
+                    {t(p.body)}
                   </Typography>
                 ))}
                 <Button
                   variant="contained"
-                  sx={{ paddingX: 4, paddingY: 2, fontWeight: "bold" }}
+                  sx={{ paddingX: 4, paddingY: 2, fontWeight: "bold",fontSize:"25px" }}
                   component={Link}
                   to="/"
                 >
                   {" "}
-                  Booking Now
+                  {t("Booking Now")}
                 </Button>
               </Box>
             </Box>
@@ -94,6 +96,7 @@ export const SubAbout = () => {
               <img
                 src={subabout}
                 alt="driver"
+                loading="lazy"
                 style={{ width: "100%", height: "100%" }}
               />
             </Box>

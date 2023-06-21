@@ -3,7 +3,6 @@ import User from "../models/users.mjs";
 const book = (req, res) => {
   const { from, to, date, busNumber, seatNumber, seatePrice } = req.body;
   const user = req.user;
-
   Trip.updateOne(
     {
       from: from,

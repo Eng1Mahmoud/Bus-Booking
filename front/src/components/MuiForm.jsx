@@ -19,9 +19,11 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { activeTrips } from "../redux/slices/TripsSlice";
+import { useTranslation } from "react-i18next";
 const StyledField = styled(Field)`
   .MuiFormLabel-root {
     color: "text.main";
+    text-align: left;
     
   };
   .MuiSelect-select {
@@ -70,8 +72,10 @@ const countries = [
 ];
 
 const MuiForm = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const today = new Date();
   const addTrips = (trips) => dispatch(activeTrips(trips));
   const onSubmit = (values, { resetForm }) => {
     const formattedDate = dayjs(values.date).format("YYYY-M-D");
@@ -105,13 +109,13 @@ const MuiForm = () => {
       <Typography
         sx={{
           color: "white",
-          fontSize: "45px",
+          fontSize: "60px",
           fontWeight: "bolder",
           marginBottom: "20px",
           display: ["none", "none", "block"],
         }}
       >
-        Start Booking Your Trip
+       {t("Start Booking Your Trip")} 
       </Typography>
       <Paper
         elevation={10}
@@ -155,7 +159,7 @@ const MuiForm = () => {
                         component={Select}
                         id="from"
                         name="from"
-                        label="From"
+                        label={t("From")}
                       >
                         {countries.map((city, i) => {
                           return (
@@ -165,7 +169,7 @@ const MuiForm = () => {
                               disabled={city.title}
                               sx={{ minWidth: "300px" }}
                             >
-                              {city.name}
+                            {t(city.name)}
                             </MenuItem>
                           );
                         })}
@@ -185,7 +189,7 @@ const MuiForm = () => {
                         component={Select}
                         id="to"
                         name="to"
-                        label="To "
+                        label={t("To")}
                       >
                         {countries.map((city, i) => {
                           return (
@@ -195,7 +199,7 @@ const MuiForm = () => {
                               disabled={city.title}
                               sx={{ minWidth: "300px" }}
                             >
-                              {city.name}
+                              {t(city.name)}
                             </MenuItem>
                           );
                         })}
@@ -214,8 +218,9 @@ const MuiForm = () => {
                         fullWidth
                         name="date"
                         as={DatePicker}
-                        label="Date Tripe"
+                        label={t("Date of Travel")}
                         value={values.date}
+                         minDate={today}
                         onChange={(newDate) => setFieldValue("date", newDate)}
                         error={Boolean(errors.date && touched["date"])}
                         helperText={errors.date}
@@ -228,9 +233,9 @@ const MuiForm = () => {
                       variant="contained"
                       size="large"
                       type="submit"
-                      style={{ width: "100px" }}
+                      sx={{ fontSize:"25px",color:"text.therd",backgroundColor:"background.therd" }}
                     >
-                      Search{" "}
+                      {t("Search")}{" "}
                     </Button>
                   </Grid>
                 </Grid>

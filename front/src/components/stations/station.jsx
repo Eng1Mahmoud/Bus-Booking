@@ -3,15 +3,15 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  Box,
   Typography,
   Grid,
   Paper,
 } from "@mui/material";
 import { ExpandMore, LocationCity } from "@mui/icons-material";
 import { Link } from "react-router-dom";
-
+import { useTranslation } from "react-i18next";
 export default function Station({ city, expanded, handleChange }) {
+  const { t } = useTranslation();
   return (
     <Paper  elevation={5}>
       <Accordion
@@ -27,7 +27,7 @@ export default function Station({ city, expanded, handleChange }) {
           <Typography
             sx={{ color: "main", fontSize: "18px", fontWeight: "bold" }}
           >
-            {city.city.name}
+            {t(city.city.name)}
           </Typography>
         </AccordionSummary>
         <AccordionDetails
@@ -50,7 +50,7 @@ export default function Station({ city, expanded, handleChange }) {
                       component="p"
                       sx={{ flexGrow: 1, color: "main" }}
                     >
-                      {station}
+                      {t(station)}
                     </Typography>
                     <Typography component="span" sx={{ flexGrow: 1 }}>
                       <Link
