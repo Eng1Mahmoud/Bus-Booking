@@ -98,12 +98,12 @@ export default function SignIn() {
         sx={{
           width: "100%",
           p: [0, 6],
-          height: "103vh",
+          height: ["100vh","100vh","103vh"],
           backgroundColor: "#1a66b999",
           direction: "ltr",
         }}
       >
-        <Grid container sx={{ height: "80%" }}>
+        <Grid container sx={{ height: ["100%","100%","80%"] }}>
           <CssBaseline />
           <Grid
             item

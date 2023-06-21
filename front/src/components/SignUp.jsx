@@ -100,12 +100,12 @@ export default function SignUp() {
         sx={{
           width: "100%",
           p: [0, 6],
-          height: "110vh",
+            height: ["100vh","100vh","110vh"],
           backgroundColor: "#1a66b999",
           direction: "ltr",
         }}
       >
-        <Grid container>
+        <Grid container sx={{ height: ["100%","100%","80%"] }}>
           <CssBaseline />
 
           <Grid

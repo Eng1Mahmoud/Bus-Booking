@@ -36,10 +36,10 @@ export const Footer = () => {
       }}
     >
       <Container sx={{ position: "relative", zIndex: 4, color: "text.therd" }}>
-        <Grid container>
+        <Grid container sx={{pb:2}}>
           <Grid
             item
-            xs={6}
+            xs={12}
             md={3}
             sx={{ display: "flex", alignItems: "center" }}
           >
@@ -54,7 +54,7 @@ export const Footer = () => {
               </Link>
             </Box>
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid item  xs={6} md={3}>
             <List>
               <ListItem>
                 <Link to="/" style={styleLink}>
@@ -73,7 +73,7 @@ export const Footer = () => {
               </ListItem>
             </List>
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid item xs={6} md={3}>
             <List>
               <ListItem>
                 <Link to="/about us" style={styleLink}>
@@ -92,7 +92,7 @@ export const Footer = () => {
               </ListItem>
             </List>
           </Grid>
-          <Grid item xs={12} sm={6} md={3} paddingTop={2}>
+          <Grid item  xs={12} md={3} paddingTop={2}>
             <Typography variant="h5">{t("Contact Us")}</Typography>
             <Typography variant="h4" component="p" p={2} fontWeight="bold">
               {" "}
@@ -119,6 +119,8 @@ export const Footer = () => {
             paddingTop: 1,
             fontSize: "20px",
             color: "text.therd",
+            pt:2,
+            borderTop:"2px solid #fff"
           }}
         >
          {t("All Copyrights revserved for")}  &copy; {year}{" "}

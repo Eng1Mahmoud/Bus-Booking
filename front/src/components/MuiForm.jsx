@@ -191,7 +191,7 @@ const MuiForm = () => {
                       }}
                     >
                       <StyledField
-                        fullWidth
+                           fullWidth={true}
                         component={Select}
                         id="to"
                         name="to"
@@ -225,7 +225,7 @@ const MuiForm = () => {
                       }}
                     >
                       <StyledField
-                        fullWidth
+                        fullWidth={true}
                         name="date"
                         as={DatePicker}
                         label={t("Date of Travel")}
