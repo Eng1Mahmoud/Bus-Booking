@@ -29,7 +29,7 @@ export const ForgetPassword = () => {
     setLoading(true);
 
     axios
-      .post("http://localhost:4000/sendCodeVerification", values, {
+      .post("https://booking-bus.onrender.com/sendCodeVerification", values, {
         "content-type": "application/json",
       })
       .then((res) => {

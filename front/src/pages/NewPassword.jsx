@@ -31,7 +31,7 @@ export const NewPassword = () => {
     setLoading(true);
 
     axios
-      .post("http://localhost:4000/newPassword", values, {
+      .post("https://booking-bus.onrender.com/newPassword", values, {
         "content-type": "application/json",
       })
       .then((res) => {
