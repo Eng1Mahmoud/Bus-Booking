@@ -166,6 +166,7 @@ const MuiForm = () => {
                         {countries.map((city, i) => {
                           return (
                             <MenuItem
+                              fullWidth={true}
                               key={city.name + i}
                               value={city.name}
                               disabled={city.title}
@@ -200,6 +201,7 @@ const MuiForm = () => {
                         {countries.map((city, i) => {
                           return (
                             <MenuItem
+                            fullWidth={true}
                               key={city.name + i}
                               value={city.name}
                               disabled={city.title}
@@ -234,7 +236,7 @@ const MuiForm = () => {
                         onChange={(newDate) => setFieldValue("date", newDate)}
                         error={Boolean(errors.date && touched["date"])}
                         helperText={errors.date}
-                        renderInput={(params) => <TextField {...params} />}
+                        renderInput={(params) => <TextField   fullWidth={true} {...params} />}
                       />
                     </Paper>
                   </Grid>
