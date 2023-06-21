@@ -157,7 +157,7 @@ const MuiForm = () => {
                       }}
                     >
                       <StyledField
-                       fullWidth={true}
+                       fullWidth
                         component={Select}
                         id="from"
                         name="from"
@@ -192,7 +192,7 @@ const MuiForm = () => {
                       }}
                     >
                       <StyledField
-                        fullWidth={true}
+                        fullWidth
                         component={Select}
                         id="to"
                         name="to"
@@ -227,7 +227,7 @@ const MuiForm = () => {
                       }}
                     >
                       <StyledField
-                        fullWidth={true}
+                        fullWidth
                         name="date"
                         as={DatePicker}
                         label={t("Date of Travel")}
@@ -236,7 +236,7 @@ const MuiForm = () => {
                         onChange={(newDate) => setFieldValue("date", newDate)}
                         error={Boolean(errors.date && touched["date"])}
                         helperText={errors.date}
-                        renderInput={(params) => <TextField   fullWidth={true} {...params} />}
+                        renderInput={(params) => <TextField   fullWidth {...params} />}
                       />
                     </Paper>
                   </Grid>
