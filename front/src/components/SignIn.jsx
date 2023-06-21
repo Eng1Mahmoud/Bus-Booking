@@ -50,7 +50,7 @@ function Copyright(props) {
     >
       {"Copyright © "}
       <Link color="inherit" to="/">
-        My Ticket
+    Tazkarty
       </Link>{" "}
       {new Date().getFullYear()}
       {"."}
@@ -161,8 +161,7 @@ export default function SignIn() {
                   touched,
                   handleChange,
                   handleBlur,
-                  isSubmitting,
-                  setFieldValue,
+                 
                 }) => (
                   <Form>
                     <TextField
@@ -215,8 +214,8 @@ export default function SignIn() {
                     </Button>
                     <Grid container>
                       <Grid item xs={12}>
-                        <Link to="/register" variant="body2">
-                          {"Don't have an account? Sign Up"}
+                        <Link to="/register" variant="body2" style={{ textDecoration:"none",fontSize:"20px" }}>
+                        Don't have an account? <strong style={{color: "blue"}}>Sign Up</strong>
                         </Link>
                       </Grid>
                     </Grid>

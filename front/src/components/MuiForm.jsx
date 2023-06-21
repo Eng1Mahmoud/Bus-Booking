@@ -157,7 +157,7 @@ const MuiForm = () => {
                       }}
                     >
                       <StyledField
-                        fullWidth={true}
+                       fullWidth={true}
                         component={Select}
                         id="from"
                         name="from"
@@ -191,7 +191,7 @@ const MuiForm = () => {
                       }}
                     >
                       <StyledField
-                           fullWidth={true}
+                        fullWidth={true}
                         component={Select}
                         id="to"
                         name="to"

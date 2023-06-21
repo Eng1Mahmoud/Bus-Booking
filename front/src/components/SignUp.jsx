@@ -55,7 +55,7 @@ function Copyright(props) {
     >
       {"Copyright © "}
       <Link color="inherit" to="/">
-        My Ticket
+      Tazkarty
       </Link>{" "}
       {new Date().getFullYear()}
       {"."}
@@ -235,8 +235,8 @@ export default function SignUp() {
                     </Button>
                     <Grid container justifyContent="flex-end">
                       <Grid item>
-                        <Link to="/login" variant="body2">
-                          Already have an account? Sign in
+                        <Link to="/login" variant="body2" style={{textDecoration:"none",fontSize:"20px" }}>
+                          Already have an account? <strong style={{color: "blue"}}>Sign in</strong>
                         </Link>
                       </Grid>
                     </Grid>
