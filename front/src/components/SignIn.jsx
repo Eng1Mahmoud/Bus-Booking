@@ -17,7 +17,6 @@ import background from "../assets/sinin.jpg";
 import { Formik, Form } from "formik";
 import Cookies from "js-cookie";
 import axios from "axios";
-
 const initialValues = {
   email: "",
   password: "",
@@ -216,6 +215,11 @@ export default function SignIn() {
                       <Grid item xs={12}>
                         <Link to="/register" variant="body2" style={{ textDecoration:"none",fontSize:"20px" }}>
                         Don't have an account? <strong style={{color: "blue"}}>Sign Up</strong>
+                        </Link>
+                      </Grid>
+                      <Grid item xs={12}>
+                        <Link to="/ForgetPassword" variant="body2" style={{ textDecoration:"none",fontSize:"20px" }}>
+                          Forgot your password? 
                         </Link>
                       </Grid>
                     </Grid>

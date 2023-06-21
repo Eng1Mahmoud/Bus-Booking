@@ -5,6 +5,8 @@ import { SignUpPage } from "./pages/SignUpPage";
 import { Root } from  "./pages/Root"
 import {FallbackLoading} from "./components/general/FallbackLoading";
 import NotFound from "./pages/NotFound"
+import {ForgetPassword} from "./pages/ForgetPassword";
+import {NewPassword} from "./pages/NewPassword"
 const Home = lazy(() => import("./pages/HomePage"));
 const AboutPage = lazy(() => import("./pages/AboutPage"));
 const FaqPage = lazy(() => import("./pages/FaqPage"));
@@ -12,6 +14,7 @@ const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const StationsPage = lazy(() => import("./pages/StationsPage"));
 const VerificationPage = lazy(() => import("./pages/verificationPage"));
 const TripsPage = lazy(() => import("./pages/TripsPage"));
+
 
 export const router = createBrowserRouter([
   {
@@ -56,6 +59,14 @@ export const router = createBrowserRouter([
   {
     path: "verification",
     element: <Suspense fallback={<FallbackLoading/>}><VerificationPage /></Suspense>,
+  },
+  {
+    path: "ForgetPassword",
+    element: <ForgetPassword/>,
+  },
+  {
+    path: "NewPassword",
+    element: <NewPassword/>,
   },
   {
   path:"*",

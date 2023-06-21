@@ -53,6 +53,58 @@ export const verification = (req, res) => {
   }
 };
 
+
+// reset password
+export const sendCodeVerification = (req, res) => {
+ const {email} = req.body
+ console.log(req.body)
+ const verification_code = Math.random()
+          .toString(10)
+          .substring(2, 2 + 4);
+ sendMail(email, "tazkarty", verification_code);
+ localStorag.set("verification_code", verification_code);
+ localStorag.set("email", email);
+ res.json({ send: true, message: "send verivecation"});
+
+};
+
+
+
+export const newPassword = (req, res) => {
+  const storedVerificationCode = localStorag.get("verification_code");
+  const email = localStorag.get("email");
+
+  if (req.body.verificationCode === storedVerificationCode) {
+    bcrypt.hash(req.body.password, salat, (err, hash) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({ error: "An error occurred" });
+      }
+
+      // Update the user's password with the hashed password
+      User.findOneAndUpdate({ email }, { password: hash }, { new: true })
+        .then((updatedUser) => {
+          if (!updatedUser) {
+            return res.json({  verification: false, message: "User not found" });
+          }
+
+          res.json({
+            verification: true,
+            message: "Password updated",
+            user: updatedUser,
+          });
+        })
+        .catch((error) => {
+          console.log(error);
+          res.status(500).json({ error: "An error occurred" });
+        });
+    });
+  } else {
+    res.json({ verification: false, message: "Invalid verification code" });
+  }
+};
+
+
 // login function
 
 export const login = (req, res) => {
