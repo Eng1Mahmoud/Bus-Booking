@@ -5,7 +5,9 @@ body,*{
   font-family: arabic !important;
   font-size: 17px;
 }
-
+.css-ufm59s{
+  min-width:200px !important;
+}
 @font-face {
   font-family: arabic;
   src: url("./assets/arabicMain.ttf");
