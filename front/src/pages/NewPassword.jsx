@@ -3,6 +3,7 @@ import { Box } from "@mui/material";
 import { Formik, Form } from "formik";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
+import Container from "@mui/material/Container";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -35,7 +36,7 @@ export const NewPassword = () => {
         "content-type": "application/json",
       })
       .then((res) => {
-        console.log(res.data);
+      
         setLoading(false);
         setUpdate({ status: res.data.verification, message: res.data.message });
       })
@@ -54,7 +55,7 @@ export const NewPassword = () => {
         background: "#ffffff70",
       }}
     >
-      <Box>
+      <Container>
         {!update.status ? (
           <Formik
             initialValues={initialValues}
@@ -127,7 +128,7 @@ export const NewPassword = () => {
             </Button>
           </Box>
         )}
-      </Box>
+      </Container>
     </Box>
   );
 };

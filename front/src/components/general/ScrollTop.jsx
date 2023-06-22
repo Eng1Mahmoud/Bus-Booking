@@ -6,7 +6,6 @@ const scrolTop = useRef()
 const [show,setShow]=useState(false)
 
 window.onscroll = ()=>{
-    console.log("g")
     if(window.scrollY  >= 200){
         setShow(true)
     }

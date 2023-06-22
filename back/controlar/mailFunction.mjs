@@ -30,11 +30,10 @@ const sendMail = async(resever,subject,text) => {
              <body>
                <h1>Welcome to our website!</h1>
                <h3>Hi there,</h3>
-               <p>Thank you for signing up for our website. We're excited to have you on board!</p>
+               <p>Thank you for using <a href="https://bus-booking.vercel.app/">Tazkarty</a></p>
                 <p> Your Verify  Code Is <strong class="num">${text}</strong></p>
-               <p>If you have any questions or need any assistance, please don't hesitate to contact us.</p>
+               <p>If you have any questions or need any assistance, please don't hesitate to contact us. on   <a href="tel:01201453941" style={{ color: "blue",textDecoration:"none",fontSize:"20px" }}>01201453941 </a> </p>
                <strong>Best regards,</strong>
-             
              </body>
            </html>`
         });

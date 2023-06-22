@@ -6,7 +6,7 @@ import TextField from "@mui/material/TextField";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
-
+import Container from "@mui/material/Container";
 const initialValues = {
   email: "",
 };
@@ -53,7 +53,7 @@ export const ForgetPassword = () => {
         background: "#ffffff70",
       }}
     >
-      <Box>
+      <Container>
         <Formik
           initialValues={initialValues}
           onSubmit={onSubmit}
@@ -87,7 +87,7 @@ export const ForgetPassword = () => {
             </Form>
           )}
         </Formik>
-      </Box>
+      </Container>
     </Box>
   );
 };
