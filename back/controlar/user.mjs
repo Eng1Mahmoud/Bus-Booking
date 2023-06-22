@@ -30,6 +30,7 @@ const SignUp = (req, res) => {
 
 export const verification = (req, res) => {
   if (req.body.verificationCode === req.session.verification_code) {
+   
     const user = new User(req.session.user);
 
     bcrypt.hash(user.password, salat, (err, hash) => {
@@ -56,16 +57,19 @@ export const sendCodeVerification = (req, res) => {
   const { email } = req.body;
   const verification_code = Math.random().toString(10).substring(2, 2 + 4);
 
-  req.session.verification_code = verification_code;
-  req.session.email = email;
-
+  req.session.verification_code = verification_code; // Store verification code in session
+  req.session.email = email; // Store email in session
+  console.log(req.session);
   sendMail(email, "tazkarty", verification_code);
   res.json({ send: true, message: "send verification" });
 };
 
 export const newPassword = (req, res) => {
-  const storedVerificationCode = req.session.verification_code;
-  const email = req.session.email;
+  const storedVerificationCode = req.session.verification_code; // Retrieve verification code from session
+  const email = req.session.email; // Retrieve email from session
+  console.log(storedVerificationCode)
+  console.log(req.session)
+
 
   if (req.body.verificationCode === storedVerificationCode) {
     bcrypt.hash(req.body.password, salat, (err, hash) => {
