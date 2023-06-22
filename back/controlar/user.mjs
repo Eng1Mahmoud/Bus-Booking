@@ -1,14 +1,104 @@
 import User from "../models/users.mjs";
 import sendMail from "./mailFunction.mjs";
-import localStorag from "local-storage";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config();
 const salat = process.env.SALT;
 
-
 const SignUp = (req, res) => {
+  const email = req.body.email;
+  User.findOne({ email })
+    .then((user) => {
+      if (user) {
+        res.json({ exist: true, message: "User already exists" });
+        console.log(user);
+      } else {
+        res.json({ exist: false });
+
+        const verification_code = Math.random()
+          .toString(10)
+          .substring(2, 2 + 4);
+
+        req.session.verification_code = verification_code;
+        sendMail(req.body.email, "tazkarty", verification_code);
+        req.session.user = req.body;
+      }
+    })
+    .catch((err) => console.log(err.message));
+};
+
+export const verification = (req, res) => {
+  if (req.body.verificationCode === req.session.verification_code) {
+    const user = new User(req.session.user);
+
+    bcrypt.hash(user.password, salat, (err, hash) => {
+      if (err) {
+        console.log(err);
+      }
+      user.password = hash;
+      console.log(hash);
+      user.save().then((result) => {
+        console.log("User added", result);
+        res.json({
+          verification: true,
+          message: "تم انشاء الحساب بنجاح",
+          user: req.session.user,
+        });
+      });
+    });
+  } else {
+    res.json({ verification: false, message: "كود التحقق غير صحيح" });
+  }
+};
+
+export const sendCodeVerification = (req, res) => {
+  const { email } = req.body;
+  const verification_code = Math.random().toString(10).substring(2, 2 + 4);
+
+  req.session.verification_code = verification_code;
+  req.session.email = email;
+
+  sendMail(email, "tazkarty", verification_code);
+  res.json({ send: true, message: "send verification" });
+};
+
+export const newPassword = (req, res) => {
+  const storedVerificationCode = req.session.verification_code;
+  const email = req.session.email;
+
+  if (req.body.verificationCode === storedVerificationCode) {
+    bcrypt.hash(req.body.password, salat, (err, hash) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({ error: "An error occurred" });
+      }
+
+      // Update the user's password with the hashed password
+      User.findOneAndUpdate({ email }, { password: hash }, { new: true })
+        .then((updatedUser) => {
+          if (!updatedUser) {
+            return res.json({ verification: false, message: "User not found" });
+          }
+
+          res.json({
+            verification: true,
+            message: "Password updated",
+            user: updatedUser,
+          });
+        })
+        .catch((error) => {
+          console.log(error);
+          res.status(500).json({ error: "An error occurred" });
+        });
+    });
+  } else {
+    res.json({ verification: false, message: "Invalid verification code" });
+  }
+};
+
+
+/* const SignUp = (req, res) => {
   const email = req.body.email;
   User.findOne({ email })
     .then((user) => {
@@ -109,7 +199,7 @@ export const newPassword = (req, res) => {
     res.json({ verification: false, message: "Invalid verification code" });
   }
 };
-
+ */
 
 // login function
 

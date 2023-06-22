@@ -9,6 +9,7 @@ import Search from "./routes/search.mjs"
 import books from "./routes/book.mjs"
 import {admins} from "./routes/admins.mjs"
 import {trips} from "./routes/trips.mjs"
+const session = require('express-session');
 dotenv.config();
 const PORT = process.env.PORT || 3000;
 const app = express();
@@ -17,6 +18,11 @@ app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 app.use(cors());
 app.use(express.json());
+app.use(session({
+  secret: '7o7q1OPR2LJFmGLLZKWpK7PkE3VH0XsI', 
+  resave: false,
+  saveUninitialized: true
+}));
 mongoose
   .connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
