@@ -6,6 +6,8 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config();
 const salat = process.env.SALT;
+
+
 const SignUp = (req, res) => {
   const email = req.body.email;
   User.findOne({ email })
@@ -20,18 +22,21 @@ const SignUp = (req, res) => {
           .toString(10)
           .substring(2, 2 + 4);
 
-        localStorag.set("verification_code", verification_code);
+          sessionStorage.setItem("verification_code", verification_code);
         sendMail(req.body.email, "tazkarty", verification_code);
-        localStorag.set("user", req.body);
+        sessionStorage.setItem("user", req.body);
       }
     })
     .catch((err) => console.log(err.message));
 };
+ 
+
+
 
 // verification code function
-export const verification = (req, res) => {
-  if (req.body.verificationCode === localStorag.get("verification_code")) {
-    const user = new User(localStorag.get("user"));
+ export const verification = (req, res) => {
+  if (req.body.verificationCode === sessionStorage.getItem("verification_code")) {
+    const user = new User(sessionStorage.getItem("user"));
 
     bcrypt.hash(user.password, salat, (err, hash) => {
       if (err) {
@@ -44,7 +49,7 @@ export const verification = (req, res) => {
         res.json({
           verification: true,
           message: "تم انشاء الحساب بنجاح",
-          user: localStorag.get("user"),
+          user: sessionStorage.getItem("user"),
         });
       });
     });
@@ -52,6 +57,7 @@ export const verification = (req, res) => {
     res.json({ verification: false, message: "كود التحقق غير صحيح" });
   }
 };
+
 
 
 // reset password
@@ -62,8 +68,8 @@ export const sendCodeVerification = (req, res) => {
           .toString(10)
           .substring(2, 2 + 4);
  sendMail(email, "tazkarty", verification_code);
- localStorag.set("verification_code", verification_code);
- localStorag.set("email", email);
+ sessionStorage.setItem("verification_code", verification_code);
+ sessionStorage.setItem("email", email);
  res.json({ send: true, message: "send verivecation"});
 
 };
@@ -71,8 +77,8 @@ export const sendCodeVerification = (req, res) => {
 
 
 export const newPassword = (req, res) => {
-  const storedVerificationCode = localStorag.get("verification_code");
-  const email = localStorag.get("email");
+  const storedVerificationCode = sessionStorage.getItem("verification_code");
+  const email = sessionStorage.getItem("email");
 
   if (req.body.verificationCode === storedVerificationCode) {
     bcrypt.hash(req.body.password, salat, (err, hash) => {
