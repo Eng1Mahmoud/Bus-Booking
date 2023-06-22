@@ -76,7 +76,7 @@ function MuiAppbar() {
   };
   const handleNavigateInMobile = (page) => {
     setOpen(false);
-    if (page === "home") {
+    if (page === "Home") {
       navigate("/");
     } else {
       navigate(`/${page}`);

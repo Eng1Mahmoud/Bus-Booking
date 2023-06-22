@@ -44,7 +44,7 @@ export const ForgetPassword = () => {
       });
   };
   return (
-    <Box
+    <Container
       sx={{
         display: "flex",
         justifyContent: "center",
@@ -53,7 +53,7 @@ export const ForgetPassword = () => {
         background: "#ffffff70",
       }}
     >
-      <Container>
+      <Box>
         <Formik
           initialValues={initialValues}
           onSubmit={onSubmit}
@@ -87,7 +87,7 @@ export const ForgetPassword = () => {
             </Form>
           )}
         </Formik>
-      </Container>
-    </Box>
+      </Box>
+    </Container>
   );
 };

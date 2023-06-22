@@ -46,7 +46,7 @@ export const NewPassword = () => {
       });
   };
   return (
-    <Box
+    <Container
       sx={{
         display: "flex",
         justifyContent: "center",
@@ -55,7 +55,7 @@ export const NewPassword = () => {
         background: "#ffffff70",
       }}
     >
-      <Container>
+      <Box>
         {!update.status ? (
           <Formik
             initialValues={initialValues}
@@ -128,7 +128,7 @@ export const NewPassword = () => {
             </Button>
           </Box>
         )}
-      </Container>
-    </Box>
+      </Box>
+    </Container>
   );
 };

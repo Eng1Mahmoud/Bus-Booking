@@ -11,7 +11,6 @@ import themeDark  from "../them";
 import { useSelector } from "react-redux";
 export const Root = () => {
   const themDark = useSelector((state) => state.trips.themeDark);
-   console.log(Cookies.get("themDark"))
   const location = useLocation();
 
   useEffect(() => {
