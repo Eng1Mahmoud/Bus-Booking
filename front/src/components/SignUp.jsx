@@ -75,6 +75,9 @@ export default function SignUp() {
         "content-type": "application/json",
       })
       .then((res) => {
+        
+        sessionStorage.setItem("verification_code",res.data.verification_code);
+        sessionStorage.setItem("user",JSON.stringify(res.data.user));
         if (res.data.exist) {
           setTimeout(() => {
             setLoading(false);

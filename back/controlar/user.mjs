@@ -6,103 +6,10 @@ import dotenv from "dotenv";
 dotenv.config();
 const salat = process.env.SALT;
 
-const SignUp = (req, res) => {
-  const email = req.body.email;
-  User.findOne({ email })
-    .then((user) => {
-      if (user) {
-        res.json({ exist: true, message: "User already exists" });
-        console.log(user);
-      } else {
-        res.json({ exist: false });
-
-        const verification_code = Math.random()
-          .toString(10)
-          .substring(2, 2 + 4);
-
-        req.session.verification_code = verification_code;
-        sendMail(req.body.email, "tazkarty", verification_code);
-        req.session.user = req.body;
-      }
-    })
-    .catch((err) => console.log(err.message));
-};
-
-export const verification = (req, res) => {
-  if (req.body.verificationCode === req.session.verification_code) {
-   
-    const user = new User(req.session.user);
-
-    bcrypt.hash(user.password, salat, (err, hash) => {
-      if (err) {
-        console.log(err);
-      }
-      user.password = hash;
-      console.log(hash);
-      user.save().then((result) => {
-        console.log("User added", result);
-        res.json({
-          verification: true,
-          message: "تم انشاء الحساب بنجاح",
-          user: req.session.user,
-        });
-      });
-    });
-  } else {
-    res.json({ verification: false, message: "كود التحقق غير صحيح" });
-  }
-};
-
-export const sendCodeVerification = (req, res) => {
-  const { email } = req.body;
-  const verification_code = Math.random().toString(10).substring(2, 2 + 4);
-
-  req.session.verification_code = verification_code; // Store verification code in session
-  req.session.email = email; // Store email in session
-  console.log(req.session);
-  sendMail(email, "tazkarty", verification_code);
-  res.json({ send: true, message: "send verification" });
-};
-
-export const newPassword = (req, res) => {
-  const storedVerificationCode = req.session.verification_code; // Retrieve verification code from session
-  const email = req.session.email; // Retrieve email from session
-  console.log(storedVerificationCode)
-  console.log(req.session)
 
 
-  if (req.body.verificationCode === storedVerificationCode) {
-    bcrypt.hash(req.body.password, salat, (err, hash) => {
-      if (err) {
-        console.log(err);
-        return res.status(500).json({ error: "An error occurred" });
-      }
 
-      // Update the user's password with the hashed password
-      User.findOneAndUpdate({ email }, { password: hash }, { new: true })
-        .then((updatedUser) => {
-          if (!updatedUser) {
-            return res.json({ verification: false, message: "User not found" });
-          }
-
-          res.json({
-            verification: true,
-            message: "Password updated",
-            user: updatedUser,
-          });
-        })
-        .catch((error) => {
-          console.log(error);
-          res.status(500).json({ error: "An error occurred" });
-        });
-    });
-  } else {
-    res.json({ verification: false, message: "Invalid verification code" });
-  }
-};
-
-
-/* const SignUp = (req, res) => {
+ const SignUp = (req, res) => {
   const email = req.body.email;
   User.findOne({ email })
     .then((user) => {
@@ -110,15 +17,11 @@ export const newPassword = (req, res) => {
         res.json({ exist: true, message: "user already exists" });
         console.log(user);
       } else {
-        res.json({ exist: false });
-
         const verification_code = Math.random()
           .toString(10)
           .substring(2, 2 + 4);
-
-          sessionStorage.setItem("verification_code", verification_code);
         sendMail(req.body.email, "tazkarty", verification_code);
-        sessionStorage.setItem("user", req.body);
+        res.json({ exist: false,verification_code:verification_code,user:req.body });
       }
     })
     .catch((err) => console.log(err.message));
@@ -129,27 +32,29 @@ export const newPassword = (req, res) => {
 
 // verification code function
  export const verification = (req, res) => {
-  if (req.body.verificationCode === sessionStorage.getItem("verification_code")) {
-    const user = new User(sessionStorage.getItem("user"));
+  const {verification_code,user,verificationCode} = req.body
+  console.log(user)
+   if (verificationCode === verification_code) {
+    const users = new User(user);
 
     bcrypt.hash(user.password, salat, (err, hash) => {
       if (err) {
         console.log(err);
       }
-      user.password = hash;
+      users.password = hash;
       console.log(hash);
-      user.save().then((result) => {
+      users.save().then((result) => {
         console.log("User added", result);
         res.json({
           verification: true,
           message: "تم انشاء الحساب بنجاح",
-          user: sessionStorage.getItem("user"),
+
         });
       });
     });
   } else {
     res.json({ verification: false, message: "كود التحقق غير صحيح" });
-  }
+  } 
 };
 
 
@@ -162,20 +67,19 @@ export const sendCodeVerification = (req, res) => {
           .toString(10)
           .substring(2, 2 + 4);
  sendMail(email, "tazkarty", verification_code);
- sessionStorage.setItem("verification_code", verification_code);
- sessionStorage.setItem("email", email);
- res.json({ send: true, message: "send verivecation"});
+
+ res.json({ send: true, message: "send verivecation",email:email,verification_code:verification_code});
 
 };
 
 
 
 export const newPassword = (req, res) => {
-  const storedVerificationCode = sessionStorage.getItem("verification_code");
-  const email = sessionStorage.getItem("email");
 
-  if (req.body.verificationCode === storedVerificationCode) {
-    bcrypt.hash(req.body.password, salat, (err, hash) => {
+  const {email,password,verificationCode,verification_code} = req.body
+
+  if (verificationCode === verification_code) {
+    bcrypt.hash(password, salat, (err, hash) => {
       if (err) {
         console.log(err);
         return res.status(500).json({ error: "An error occurred" });
@@ -203,7 +107,7 @@ export const newPassword = (req, res) => {
     res.json({ verification: false, message: "Invalid verification code" });
   }
 };
- */
+
 
 // login function
 

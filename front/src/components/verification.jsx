@@ -30,8 +30,10 @@ export const Verification = () => {
 
   const onSubmit = (values, { resetForm }) => {
     setLoading(true);
+  
+    const data = {verificationCode:values.verificationCode, user:JSON.parse(sessionStorage.getItem("user")),verification_code:sessionStorage.getItem("verification_code") }
     axios
-      .post("https://booking-bus.onrender.com/verification", values, {
+      .post("https://booking-bus.onrender.com/verification", data, {
         "content-type": "application/json",
       })
       .then((res) => {

@@ -28,11 +28,13 @@ export const NewPassword = () => {
   const [loading, setLoading] = useState(false);
   const [update, setUpdate] = useState({ status: false, message: "" });
   const navigate = useNavigate();
+  
   const onSubmit = (values, { resetForm }) => {
     setLoading(true);
-
+    const data = {verificationCode:values.verificationCode, password:values.password,verification_code:sessionStorage.getItem("verification_code"),email:sessionStorage.getItem("email") }
+   
     axios
-      .post("https://booking-bus.onrender.com/newPassword", values, {
+      .post("https://booking-bus.onrender.com/newPassword", data, {
         "content-type": "application/json",
       })
       .then((res) => {

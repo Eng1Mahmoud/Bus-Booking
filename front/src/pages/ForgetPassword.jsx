@@ -33,6 +33,9 @@ export const ForgetPassword = () => {
         "content-type": "application/json",
       })
       .then((res) => {
+      
+        sessionStorage.setItem("verification_code",res.data.verification_code);
+        sessionStorage.setItem("email",res.data.email);
         setLoading(false);
         if(res.data.send){
             navigate("/NewPassword")
