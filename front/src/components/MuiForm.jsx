@@ -13,6 +13,7 @@ import {
   TextField,
   Stack,
 } from "@mui/material";
+import { CircularProgress } from "@mui/material";
 import { Select } from "formik-mui";
 import styled from "styled-components";
 import axios from "axios";
@@ -74,9 +75,11 @@ const MuiForm = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [loading, setLoading] = React.useState(false);
   const today = new Date();
   const addTrips = (trips) => dispatch(activeTrips(trips));
   const onSubmit = (values, { resetForm }) => {
+    setLoading(true);
     const formattedDate = dayjs(values.date).format("YYYY-M-D");
     const data = { ...values, date: formattedDate };
 
@@ -87,6 +90,7 @@ const MuiForm = () => {
       .then((res) => {
         addTrips(res.data);
         navigate("/trips");
+        setLoading(false);
       });
     resetForm();
   };
@@ -245,6 +249,7 @@ const MuiForm = () => {
                       variant="contained"
                       size="large"
                       type="submit"
+                      startIcon={loading && <CircularProgress size={20} />}
                       sx={{
                         fontSize: "25px",
                         color: "text.therd",
