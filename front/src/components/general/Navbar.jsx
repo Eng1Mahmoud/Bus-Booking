@@ -85,6 +85,7 @@ function MuiAppbar() {
   const handleLogOutInMobile = () => {
     navigate("/");
     Cookies.remove("token");
+
   };
   const fetchUser = async () => {
     try {
@@ -309,7 +310,7 @@ function MuiAppbar() {
             {
               // render SignOutIcon Button if user login
               Cookies.get("token") ? (
-                <ListItem disablePadding onClick={() => handleLogOutInMobile}>
+                <ListItem disablePadding onClick={() => handleLogOutInMobile()}>
                   <ListItemButton>
                     <ListItemIcon>
                       <SignOutIcon sx={{ color: "white" }} />
