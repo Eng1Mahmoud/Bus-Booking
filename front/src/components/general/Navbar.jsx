@@ -187,7 +187,7 @@ function MuiAppbar() {
                     <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                       <Avatar
                         alt="Profile Picture"
-                        src={user.image? user.image: profileImage}
+                        src={user? user.image: profileImage}
                         sx={{ width: 45, height: 45 }}
                       />
                     </IconButton>
@@ -339,7 +339,7 @@ function MuiAppbar() {
                     <IconButton sx={{ p: 0 }}>
                       <Avatar
                         alt="Remy Sharp"
-                        src={user.image? user.image:profileImage}
+                        src={user? user.image:profileImage}
                         sx={{ width: 45, height: 45 }}
                       />
                     </IconButton>
@@ -350,7 +350,7 @@ function MuiAppbar() {
                     variant="body1"
                     sx={{ color: "white", fontWeight: "500px",px:2}}
                   >
-                     { user.FName? user.FName :null} {user.LName? user.LName :null}
+                     { user? user.FName :null} {user? user.LName :null}
                   </Typography>
                 </Box>
               </Box>
