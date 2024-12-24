@@ -44,7 +44,6 @@ export const ChangePassword = () => {
       setOpen(true);
       setResult(res.data.result);
     } catch (err) {
-      console.log(err);
     }
   };
 

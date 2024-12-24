@@ -5,11 +5,9 @@ import dotenv from "dotenv";
 dotenv.config();
 export const login = (req, res) => {
   const { email, password } = req.body;
-  console.log(req.body)
   Admin.findOne({email:email} )
     .then((admin) => {
       if (!admin) {
-        console.log(admin);
         res.json({ exist: false, message: "Admin Not Found " });
       } else {
         if (admin.password !== password) {
@@ -22,10 +20,8 @@ export const login = (req, res) => {
           res.json({ exist: true, message: "Login Success", token });
         }
       }
-      console.log(admin);
     })
     .catch((err) => {
-      console.log(err);
       res.json({ message: "An error occurred" });
     });
 };
@@ -36,7 +32,6 @@ export const getAdmins = (req, res) => {
     .then((result) => {
       res.json(result);
     })
-    .catch((err) => console.log(err));
 };
 
 // delete Admin
@@ -55,7 +50,7 @@ export const deleteAdmin = (req, res) => {
             });
           })
           .catch((err) => {
-            console.log(err);
+          
             res.status(500).json({ message: "Internal server error" });
           });
       } else {
@@ -72,18 +67,16 @@ export const deleteAdmin = (req, res) => {
                 res.json({ message: "Admin deleted successfully", admins });
               })
               .catch((err) => {
-                console.log(err);
+              
                 res.status(500).json({ message: "Internal server error" });
               });
           })
           .catch((err) => {
-            console.log(err);
             res.status(500).json({ message: "Internal server error" });
           });
       }
     })
     .catch((err) => {
-      console.log(err);
       res.status(500).json({ message: "Internal server error" });
     });
 };
@@ -101,7 +94,7 @@ export const addAdmin = (req, res) => {
         .then((result) => {
           res.json({ message: "Admin added successfully" });
         })
-        .catch((err) => console.log(err));
+      
     }
   });
 };
@@ -137,12 +130,8 @@ export const book = (req, res) => {
 // delete specific bus number from trip
 export const deleteTrip = (req, res) => {
   const { from, to, date, busNumber } = req.params;
-  console.log(req.params);
-
   Trip.updateOne({ from, to, date }, { $pull: { bus: { number: busNumber } } })
     .then((result) => {
-      console.log(result);
-
       // Find the trip object after the update operation
       Trip.findOne({ from, to, date })
         .then((trip) => {

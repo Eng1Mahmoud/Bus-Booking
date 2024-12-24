@@ -51,7 +51,6 @@ export const Verification = () => {
         }
       })
       .catch((err) => {
-        console.log(err);
         setVerificationStatus({
           verified: false,
           message: "Error verifying the code. Please try again.",

@@ -32,10 +32,6 @@ mongoose
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-  .then(() => {
-    console.log("connected to db");
-  })
-  .catch((err) => console.log(err));
 // user routes
 user(app)
 Search(app)

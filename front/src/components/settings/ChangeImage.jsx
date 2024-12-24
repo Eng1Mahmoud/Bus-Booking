@@ -43,9 +43,7 @@ export const ChangeImage = ({ name, oldImage }) => {
       );
       
       setImage(res.data.result.image);
-    } catch (err) {
-      console.log(err);
-    }
+    } catch (err) {}
   };
   return (
     <Box>

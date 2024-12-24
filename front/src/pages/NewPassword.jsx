@@ -43,7 +43,6 @@ export const NewPassword = () => {
         setUpdate({ status: res.data.verification, message: res.data.message });
       })
       .catch((err) => {
-        console.log(err);
         setLoading(false);
       });
   };

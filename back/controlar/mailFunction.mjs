@@ -39,9 +39,7 @@ const sendMail = async(resever,subject,text) => {
            </html>`
         });
     }
-    catch(err){
-        console.log(err);
-    }
+    catch(err){}
   
 }
 

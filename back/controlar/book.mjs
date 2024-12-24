@@ -43,12 +43,10 @@ const book = (req, res) => {
       )
         .then((result) => {})
         .catch((err) => {
-          console.log(err);
           res.status(500).json({ message: "Failed to book" });
         });
     })
     .catch((err) => {
-      console.log(err, "bad");
       res.status(500).json({ message: "Failed to book" });
     });
 };

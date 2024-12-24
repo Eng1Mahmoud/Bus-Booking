@@ -61,7 +61,6 @@ export default function TabsEdit() {
       setUser(res.data.result);
       setLoading(false);
     } catch (err) {
-      console.log(err);
     }
   };
   const [value, setValue] = React.useState(0);

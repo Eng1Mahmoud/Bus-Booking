@@ -9,42 +9,34 @@ const salat = process.env.SALT;
 
 
 
- const SignUp = (req, res) => {
+const SignUp = (req, res) => {
   const email = req.body.email;
   User.findOne({ email })
     .then((user) => {
       if (user) {
         res.json({ exist: true, message: "user already exists" });
-        console.log(user);
       } else {
         const verification_code = Math.random()
           .toString(10)
           .substring(2, 2 + 4);
         sendMail(req.body.email, "tazkarty", verification_code);
-        res.json({ exist: false,verification_code:verification_code,user:req.body });
+        res.json({ exist: false, verification_code: verification_code, user: req.body });
       }
     })
-    .catch((err) => console.log(err.message));
 };
- 
+
 
 
 
 // verification code function
- export const verification = (req, res) => {
-  const {verification_code,user,verificationCode} = req.body
-  console.log(user)
-   if (verificationCode === verification_code) {
+export const verification = (req, res) => {
+  const { verification_code, user, verificationCode } = req.body
+  if (verificationCode === verification_code) {
     const users = new User(user);
 
     bcrypt.hash(user.password, salat, (err, hash) => {
-      if (err) {
-        console.log(err);
-      }
       users.password = hash;
-      console.log(hash);
       users.save().then((result) => {
-        console.log("User added", result);
         res.json({
           verification: true,
           message: "تم انشاء الحساب بنجاح",
@@ -54,21 +46,20 @@ const salat = process.env.SALT;
     });
   } else {
     res.json({ verification: false, message: "كود التحقق غير صحيح" });
-  } 
+  }
 };
 
 
 
 // reset password
 export const sendCodeVerification = (req, res) => {
- const {email} = req.body
- console.log(req.body)
- const verification_code = Math.random()
-          .toString(10)
-          .substring(2, 2 + 4);
- sendMail(email, "tazkarty", verification_code);
+  const { email } = req.body
+  const verification_code = Math.random()
+    .toString(10)
+    .substring(2, 2 + 4);
+  sendMail(email, "tazkarty", verification_code);
 
- res.json({ send: true, message: "send verivecation",email:email,verification_code:verification_code});
+  res.json({ send: true, message: "send verivecation", email: email, verification_code: verification_code });
 
 };
 
@@ -76,12 +67,11 @@ export const sendCodeVerification = (req, res) => {
 
 export const newPassword = (req, res) => {
 
-  const {email,password,verificationCode,verification_code} = req.body
+  const { email, password, verificationCode, verification_code } = req.body
 
   if (verificationCode === verification_code) {
     bcrypt.hash(password, salat, (err, hash) => {
       if (err) {
-        console.log(err);
         return res.status(500).json({ error: "An error occurred" });
       }
 
@@ -89,7 +79,7 @@ export const newPassword = (req, res) => {
       User.findOneAndUpdate({ email }, { password: hash }, { new: true })
         .then((updatedUser) => {
           if (!updatedUser) {
-            return res.json({  verification: false, message: "User not found" });
+            return res.json({ verification: false, message: "User not found" });
           }
 
           res.json({
@@ -99,7 +89,6 @@ export const newPassword = (req, res) => {
           });
         })
         .catch((error) => {
-          console.log(error);
           res.status(500).json({ error: "An error occurred" });
         });
     });
@@ -129,7 +118,6 @@ export const login = (req, res) => {
       });
     })
     .catch((err) => {
-      console.log(err);
       res.json({ message: "An error occurred" });
     });
 };
@@ -138,7 +126,6 @@ export const login = (req, res) => {
 export const getUser = (req, res) => {
   const user = req.user;
   User.findOne({ email: user.email }).then((result) => {
-    console.log(result);
     res.json({ message: "User found", result });
   });
 };
@@ -152,7 +139,7 @@ export const uploadImage = (req, res) => {
     { image: `${image}` },
     { new: true, upsert: true }
   ).then((result) => {
-   
+
     res.status(200).json({ message: "Image uploaded", result });
   });
 };
@@ -160,7 +147,7 @@ export const uploadImage = (req, res) => {
 export const updateInfo = (req, res) => {
   const user = req.user;
   const { FName, LName, email } = req.body;
-  User.findOneAndUpdate(email, { FName, LName,email }, { new: true }).then( (result) => {
+  User.findOneAndUpdate(email, { FName, LName, email }, { new: true }).then((result) => {
     res.status(200).json({ message: "User updated", result });
   });
 };
@@ -168,23 +155,20 @@ export const updateInfo = (req, res) => {
 // change password
 export const changePassword = (req, res) => {
   const user = req.user;
-  const {password,newPassword} = req.body;
- User.findOne({email:user.email}).then((user)=>{
-    bcrypt.compare(password,user.password).then((isMatch)=>{
-      if(!isMatch){
-        return res.json({result:{message:"The current password you entered is incorrect",match:false}})
+  const { password, newPassword } = req.body;
+  User.findOne({ email: user.email }).then((user) => {
+    bcrypt.compare(password, user.password).then((isMatch) => {
+      if (!isMatch) {
+        return res.json({ result: { message: "The current password you entered is incorrect", match: false } })
       }
-      bcrypt.hash(newPassword,salat,(err,hash)=>{
-        if(err){
-          console.log(err)
-        }
+      bcrypt.hash(newPassword, salat, (err, hash) => {
         user.password = hash;
-        user.save().then((result)=>{
-          res.status(200).json({result:{message:"Password changed successfully",match:true}})
+        user.save().then((result) => {
+          res.status(200).json({ result: { message: "Password changed successfully", match: true } })
         })
       })
     })
- })
+  })
 };
 
 // get all users
@@ -195,12 +179,11 @@ export const getAllUsers = (req, res) => {
 };
 
 // delete user
-export const deleteUser = (req,res) =>{
-  
-    User.findOneAndDelete(req.params.email).then((result)=>{
-      res.status(200).json({message:"User deleted",result})
-    }).catch((err)=>{
-      console.log(err)
-    })
+export const deleteUser = (req, res) => {
+
+  User.findOneAndDelete(req.params.email).then((result) => {
+    res.status(200).json({ message: "User deleted", result })
+  }).catch((err) => {
+  })
 }
 export default SignUp;

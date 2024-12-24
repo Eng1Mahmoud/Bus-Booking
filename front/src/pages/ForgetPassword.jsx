@@ -42,7 +42,6 @@ export const ForgetPassword = () => {
         }
       })
       .catch((err) => {
-        console.log(err);
         setLoading(false);
       });
   };

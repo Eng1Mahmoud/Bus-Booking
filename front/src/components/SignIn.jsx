@@ -85,9 +85,7 @@ export default function SignIn() {
           }, 1000);
         }
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => {});
 
     resetForm();
   };

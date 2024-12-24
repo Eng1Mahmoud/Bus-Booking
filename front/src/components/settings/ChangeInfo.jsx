@@ -43,9 +43,7 @@ export const ChangeInfo = ({ oldInformation }) => {
         }
       );
       setNewInformation(res.data.result);
-    } catch (err) {
-      console.log(err);
-    }
+    } catch (err) {}
   };
 
   return (

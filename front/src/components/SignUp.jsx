@@ -91,9 +91,7 @@ export default function SignUp() {
           }, 1000);
         }
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => {});
 
     resetForm();
   };

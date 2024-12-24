@@ -100,9 +100,7 @@ function MuiAppbar() {
         }
       );
       setUser(res.data.result);
-    } catch (err) {
-      console.log(err);
-    }
+    } catch (err) {}
   };
   React.useEffect(() => {
     if (Cookies.get("token")) {
