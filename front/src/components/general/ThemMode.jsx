@@ -59,9 +59,13 @@ export default function CustomizedSwitches() {
 
   return (
     <FormControlLabel
-      control={<MaterialUISwitch sx={{ m: 1 }} defaultChecked />}
-      checked={themeDark}
-      onChange={handleDarkModeToggle}
+      control={
+        <MaterialUISwitch 
+          sx={{ m: 1 }} 
+          checked={themeDark}
+          onChange={handleDarkModeToggle}
+        />
+      }
     />
   );
 }

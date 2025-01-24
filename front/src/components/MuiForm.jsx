@@ -12,9 +12,9 @@ import {
   Button,
   TextField,
   Stack,
+  Select as MuiSelect,
 } from "@mui/material";
 import { CircularProgress } from "@mui/material";
-import { Select } from "formik-mui";
 import styled from "styled-components";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -138,7 +138,7 @@ const MuiForm = () => {
           onSubmit={onSubmit}
           validate={validate}
         >
-          {({ setFieldValue, errors, submitForm, touched, values }) => (
+          {({ setFieldValue, errors, touched, values, handleChange }) => (
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <Form>
                 <Grid
@@ -160,17 +160,17 @@ const MuiForm = () => {
                         padding: "10px",
                       }}
                     >
-                      <StyledField
-                       fullWidth
-                        component={Select}
+                      <MuiSelect
+                        fullWidth
                         id="from"
                         name="from"
+                        value={values.from}
+                        onChange={handleChange}
                         label={t("From")}
                       >
                         {countries.map((city, i) => {
                           return (
                             <MenuItem
-                              fullWidth={true}
                               key={city.name + i}
                               value={city.name}
                               disabled={city.title}
@@ -180,7 +180,7 @@ const MuiForm = () => {
                             </MenuItem>
                           );
                         })}
-                      </StyledField>
+                      </MuiSelect>
                     </Paper>
                   </Grid>
                   <Grid item xs={12} md={3}>
@@ -195,17 +195,17 @@ const MuiForm = () => {
                         padding: "10px",
                       }}
                     >
-                      <StyledField
+                      <MuiSelect
                         fullWidth
-                        component={Select}
                         id="to"
                         name="to"
+                        value={values.to}
+                        onChange={handleChange}
                         label={t("To")}
                       >
                         {countries.map((city, i) => {
                           return (
                             <MenuItem
-                            fullWidth={true}
                               key={city.name + i}
                               value={city.name}
                               disabled={city.title}
@@ -215,7 +215,7 @@ const MuiForm = () => {
                             </MenuItem>
                           );
                         })}
-                      </StyledField>
+                      </MuiSelect>
                     </Paper>
                   </Grid>
                   <Grid item xs={12} md={3}>

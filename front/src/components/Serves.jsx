@@ -5,8 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { useTranslation } from "react-i18next";
-import { Earth } from "./Earth";
-import { Canvas } from "@react-three/fiber";
 import { useMediaQuery } from "@mui/material";
 const Data = [
   {
@@ -48,10 +46,6 @@ export const Serves = () => {
             {t("The Best Public Transportation in Egypt")}
           </Typography>
         </Box>
-
-        <Canvas style={{ height: isSm ? "200px" : "500px" }}>
-          <Earth />
-        </Canvas>
       </Box>
 
       <Grid container spacing={3} sx={{ paddingY: 4 }}>

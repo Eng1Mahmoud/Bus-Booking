@@ -13,9 +13,9 @@ import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import Complet from "./Complet";
 import { useTranslation } from "react-i18next";
-const Transition = React.forwardRef(function Transition(props, ref) {
+const Transition = function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
-});
+}
 
 export default function Book({ tripDetils }) {
   const { t } = useTranslation();
