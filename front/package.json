@@ -60,6 +60,8 @@
     ]
   },
   "devDependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "babel-plugin-react-compiler": "^19.0.0-beta-decd7b8-20250118",
+    "eslint-plugin-react-compiler": "^19.0.0-beta-decd7b8-20250118"
   }
 }

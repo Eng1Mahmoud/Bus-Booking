@@ -13,7 +13,14 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistor}>
-      <RouterProvider router={router} />
+      <RouterProvider 
+       router={router} 
+       future={{
+        v7_startTransition: true,
+        v7_fetcherPersist: true,
+        v7_relativeSplatPath: true,
+      }}
+       />
     </PersistGate>
   </Provider>
 );
