@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import  { useEffect, useState } from "react";
 import { MenuItem, Box, Tooltip, IconButton, Menu } from "@mui/material";
 import LanguageIcon from "@mui/icons-material/Language";
 import i18n from '../../i18n';
@@ -13,8 +13,8 @@ const LanguageSwitcher = () => {
     document.dir = i18n.language === "ar" ? "rtl" : "ltr";
   }, [curruntLang]);
 
-  const [anchorElNav, setAnchorElNav] = React.useState(null);
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const [anchorElNav, setAnchorElNav] = useState(null);
+  const [anchorElUser, setAnchorElUser] = useState(null);
   const handleChangeLang = (lang) => {
     dispatch(changLang(lang));
     i18n.changeLanguage(curruntLang);

@@ -1,7 +1,8 @@
-import React from "react";
+
 import { Box, Paper, Stack } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import Station from "./station";
+import { useState } from "react";
 const CustomPaper = styled(Paper)(({ theme }) => ({
   height: "500px",
   overflowY: "scroll",
@@ -75,7 +76,7 @@ const citys = [
   },
 ];
 export const Stations = () => {
-  const [expanded, setExpanded] = React.useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   const handleChange = (panel) => (event, newExpanded) => {
     setExpanded(newExpanded ? panel : false);

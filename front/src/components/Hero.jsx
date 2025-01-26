@@ -1,5 +1,4 @@
 import { Box } from '@mui/material'
-import React from 'react'
 import MuiForm from './MuiForm'
 import { Swepers } from './Swepers'
 

@@ -1,5 +1,4 @@
-import * as React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Container,
   AppBar,
@@ -42,8 +41,8 @@ const pages = ["Home", "Stations", "About Us", "Faqs", "Login", "Register"];
 
 function MuiAppbar() {
   const { t, } = useTranslation();
-  const [anchorElNav, setAnchorElNav] = React.useState(null);
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const [anchorElNav, setAnchorElNav] = useState(null);
+  const [anchorElUser, setAnchorElUser] = useState(null);
   const [open, setOpen] = useState(false);
   const [user, setUser] = useState({});
   const navigate = useNavigate();
@@ -102,7 +101,7 @@ function MuiAppbar() {
       setUser(res.data.result);
     } catch (err) {}
   };
-  React.useEffect(() => {
+  useEffect(() => {
     if (Cookies.get("token")) {
       fetchUser();
     }

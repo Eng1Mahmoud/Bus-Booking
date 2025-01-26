@@ -1,4 +1,3 @@
-import React from 'react'
 import { Serves } from '../components/Serves'
 import { About } from '../components/about/About'
 import { Payment } from "../components/Payment"

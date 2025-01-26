@@ -1,4 +1,3 @@
-import React from "react";
 import { Container, Grid, Box, Typography, Button } from "@mui/material";
 import pay1 from "../assets/paypal.png";
 import { useInView } from "react-intersection-observer";

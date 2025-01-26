@@ -1,7 +1,7 @@
-import React from "react";
 import { Box, Container, Paper, Typography, Stack } from "@mui/material";
 import Faq from "./Faq";
 import { useTranslation } from "react-i18next";
+import { useState } from "react";
 const faqs = [
   {
     id: 1,
@@ -41,7 +41,7 @@ const faqs = [
 ];
 export const Faqs = () => {
   const { t} = useTranslation();
-  const [expanded, setExpanded] = React.useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   const handleChange = (panel) => (event, newExpanded) => {
     setExpanded(newExpanded ? panel : false);

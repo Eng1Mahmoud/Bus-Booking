@@ -1,4 +1,3 @@
-import React from 'react'
 import { SubAbout } from '../components/about/SubAbout'
 import { SubHero } from '../components/general/SubHero'
 import about from "../assets/aboutHero.jpg"

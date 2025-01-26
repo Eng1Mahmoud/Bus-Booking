@@ -1,4 +1,3 @@
-import React from 'react'
 import {Box} from "@mui/material"
 import { SubHero } from '../components/general/SubHero'
 import { Faqs } from '../components/faqs/Faqs'

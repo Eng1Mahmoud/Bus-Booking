@@ -1,4 +1,3 @@
-import * as React from "react";
 import {
   Avatar,
   Button,
@@ -17,6 +16,7 @@ import background from "../assets/sinin.jpg";
 import { Formik, Form } from "formik";
 import Cookies from "js-cookie";
 import axios from "axios";
+import { useState } from "react";
 const initialValues = {
   email: "",
   password: "",
@@ -61,8 +61,8 @@ const theme = createTheme();
 
 export default function SignIn() {
   const navigate = useNavigate();
-  const [loading, setLoading] = React.useState(false);
-  const [exist, setExist] = React.useState({ exist: null, message: "" });
+  const [loading, setLoading] = useState(false);
+  const [exist, setExist] = useState({ exist: null, message: "" });
   const onSubmit = (values, { resetForm }) => {
     setLoading(true);
     axios
