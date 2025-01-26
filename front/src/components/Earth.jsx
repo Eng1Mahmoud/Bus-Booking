@@ -1,60 +1,81 @@
-import React, { useRef } from "react";
+import { useRef, useState } from "react";
 import { useFrame, useLoader } from "@react-three/fiber";
-import { Stars } from "@react-three/drei";
-import * as THREE from "three";
-
-import er2 from "../assets/er2.jpg";
-
-import { TextureLoader } from "three";
+import { Stars, OrbitControls } from "@react-three/drei";
+import Albedo from "../assets/Albedo.jpg"; 
+import Ocean from "../assets/Ocean.png"; 
+import earth from "../assets/earth2.jpg";
+import { Color, DoubleSide, TextureLoader } from "three";
+import { FrontSide } from "three";
 
 export function Earth(props) {
-  const [colorMap, normalMap, specularMap, cloudsMap] = useLoader(
+  const [color, normal, specular, clouds] = useLoader(
     TextureLoader,
-    [er2]
+    [Albedo,earth,Ocean] // Use textures in correct order
   );
 
   const earthRef = useRef();
-  const cloudsRef = useRef();
+  const groupRef = useRef();
+  const [scale, setScale] = useState(1);
+  const [autoRotate, setAutoRotate] = useState(true);
 
   useFrame(({ clock }) => {
-    const elapsedTime = clock.getElapsedTime();
-  
-
-    earthRef.current.rotation.set( Math.PI / 4, elapsedTime / 2, Math.PI / 4);
+    if (autoRotate && earthRef.current) {
+      earthRef.current.rotation.y = clock.getElapsedTime() / 6;
+    }
   });
-  
 
   return (
     <>
-      <pointLight color="#f6f3ea" position={[0, 0, 10]} intensity={1} />
-      <Stars
-        radius={600}
-        depth={60}
-        count={20000}
-        factor={7}
-        saturation={0}
-        fade={true}
+      <OrbitControls
+        enableZoom={true}
+        enablePan={true}
+        enableRotate={true}
+        zoomSpeed={0.6}
+        rotateSpeed={0.4}
+        autoRotate={autoRotate}
+        autoRotateSpeed={0.5}
+        minDistance={1.5}
+        maxDistance={10}
       />
-      <mesh ref={cloudsRef} position={[0, 0, 3]}>
-        <sphereGeometry args={[1, 0, 0]} />
-        <meshPhongMaterial
-          map={cloudsMap}
-          opacity={0.4}
-          depthWrite={true}
-          transparent={true}
-          side={THREE.DoubleSide}
-        />
-      </mesh>
-      <mesh ref={earthRef} position={[0, 0, 3]}>
-        <sphereGeometry args={[1, 32, 32]} />
-        <meshPhongMaterial specularMap={specularMap} />
-        <meshStandardMaterial
-          map={colorMap}
-          normalMap={normalMap}
-          metalness={0.4}
-          roughness={0.7}
-        />
-      </mesh>
+
+      {/* Improved lighting setup */}
+      <ambientLight intensity={0.5} />
+      <pointLight position={[10, 10, 10]} intensity={1.5} />
+      <directionalLight
+        position={[-5, 5, 5]}
+        intensity={1.0}
+        castShadow
+      />
+
+      <group ref={groupRef} scale={scale}>
+        {/* Earth sphere */}
+        <mesh ref={earthRef}>
+          <sphereGeometry args={[1, 64, 64]} />
+          <meshPhongMaterial
+            map={color} // Albedo texture
+            bumpMap={normal} // Normal map
+            bumpScale={0.1}
+            specularMap={specular} // Specular map
+            specular={new Color(0x222222)}
+            shininess={12} // Adjust shininess for better reflection
+            side={FrontSide}
+          />
+        </mesh>
+
+        {/* Cloud layer - must use transparent PNG */}
+        <mesh>
+          <sphereGeometry args={[1.005, 64, 64]} />
+          <meshPhongMaterial
+            map={clouds} // Cloud texture
+            transparent
+            opacity={0.4}
+            depthWrite={false}
+            side={DoubleSide}
+          />
+        </mesh>
+      </group>
+
+      <Stars radius={500} depth={60} count={5000} factor={4} fade />
     </>
   );
 }

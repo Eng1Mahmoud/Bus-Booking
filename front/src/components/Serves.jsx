@@ -1,13 +1,12 @@
 import { Container, Grid, Paper, Typography } from "@mui/material";
 import { Box, Button } from "@mui/material";
-import React from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { useTranslation } from "react-i18next";
-import { Earth } from "./Earth";
-import { Canvas } from "@react-three/fiber";
 import { useMediaQuery } from "@mui/material";
+import {Earth} from "./Earth";
+import { Canvas } from "@react-three/fiber";
 const Data = [
   {
     title: "Get Real Comfort",
@@ -47,11 +46,10 @@ export const Serves = () => {
           >
             {t("The Best Public Transportation in Egypt")}
           </Typography>
+          <Canvas camera={{ position: [0, 0, 2.5], fov: 60 }} style={{ height: isSm ? "200px" : "500px" }}>
+        <Earth />
+      </Canvas>
         </Box>
-
-        <Canvas style={{ height: isSm ? "200px" : "500px" }}>
-          <Earth />
-        </Canvas>
       </Box>
 
       <Grid container spacing={3} sx={{ paddingY: 4 }}>
@@ -70,7 +68,11 @@ export const Serves = () => {
                 <Typography variant="h5" component="h3">
                   {t(item.title)}
                 </Typography>
-                <Typography variant="body1" component="p" sx={{fontSize:"18px"}}>
+                <Typography
+                  variant="body1"
+                  component="p"
+                  sx={{ fontSize: "18px" }}
+                >
                   {t(item.body)}
                 </Typography>
               </Paper>
@@ -88,7 +90,6 @@ export const Serves = () => {
             fontWeight: "bold",
             width: ["90%", "90%", "auto"],
             fontSize: "19px",
-         
           }}
           onClick={() => navigate("/")}
         >

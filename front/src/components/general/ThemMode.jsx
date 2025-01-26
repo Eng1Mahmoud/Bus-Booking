@@ -1,4 +1,3 @@
-import * as React from "react";
 import { styled } from "@mui/material/styles";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
@@ -59,9 +58,13 @@ export default function CustomizedSwitches() {
 
   return (
     <FormControlLabel
-      control={<MaterialUISwitch sx={{ m: 1 }} defaultChecked />}
-      checked={themeDark}
-      onChange={handleDarkModeToggle}
+      control={
+        <MaterialUISwitch 
+          sx={{ m: 1 }} 
+          checked={themeDark}
+          onChange={handleDarkModeToggle}
+        />
+      }
     />
   );
 }

@@ -1,4 +1,3 @@
-import * as React from "react";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -14,6 +13,7 @@ import background from "../assets/sinin.jpg";
 import { Formik, Form } from "formik";
 import axios from "axios";
 import { CircularProgress } from "@mui/material";
+import { useState } from "react";
 
 const initialValues = {
   FName: "",
@@ -65,8 +65,8 @@ function Copyright(props) {
 const theme = createTheme();
 
 export default function SignUp() {
-  const [loading, setLoading] = React.useState(false);
-  const [exist, setExist] = React.useState({ exist: false, message: "" });
+  const [loading, setLoading] = useState(false);
+  const [exist, setExist] = useState({ exist: false, message: "" });
   const navigate = useNavigate();
   const onSubmit = (values, { resetForm }) => {
     setLoading(true);

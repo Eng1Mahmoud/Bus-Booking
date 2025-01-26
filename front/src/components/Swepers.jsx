@@ -10,7 +10,7 @@ import slide5Image from "../assets/slide-5.jpg";
 import "swiper/css";
 import "swiper/css/pagination";
 import { Pagination, Autoplay } from "swiper";
-import { Box } from "@mui/system";
+import { Box } from "@mui/material";
 const StyledBox = styled.div`
   position: relative;
   direction:ltr;

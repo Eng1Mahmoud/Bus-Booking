@@ -1,5 +1,4 @@
-import React, { useEffect} from "react";
-import Cookies from "js-cookie";
+import { useEffect} from "react";
 import MuiAppbar from "../components/general/Navbar";
 import { Footer } from "../components/general/Footer";
 import {ScrollTop} from "../components/general/ScrollTop"

@@ -1,4 +1,3 @@
-import React from 'react';
 import notFoundPage from '../assets/notFoundPage.jpg'
 import { Box, Typography ,Button} from '@mui/material';
 import { useTranslation } from 'react-i18next';

@@ -1,5 +1,4 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import * as React from "react";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -13,17 +12,18 @@ import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import Complet from "./Complet";
 import { useTranslation } from "react-i18next";
-const Transition = React.forwardRef(function Transition(props, ref) {
+import { useEffect, useState } from "react";
+const Transition = function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
-});
+}
 
 export default function Book({ tripDetils }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [showPide, setShowPide] = React.useState(false);
-  const [open, setOpen] = React.useState(false);
-  const [openComplet, setOpenComplet] = React.useState(false);
-  const [seatNumber, setSeatNumber] = React.useState(null);
+  const [showPide, setShowPide] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [openComplet, setOpenComplet] = useState(false);
+  const [seatNumber, setSeatNumber] = useState(null);
   const completBook = () => {
     axios.post(
       "https://booking-bus.onrender.com/book",
@@ -45,7 +45,7 @@ export default function Book({ tripDetils }) {
   };
   // render paypal button
 
-  React.useEffect(() => {
+  useEffect(() => {
     const price = (tripDetils.price / 30).toFixed(2);
     window.paypal
       .Buttons({

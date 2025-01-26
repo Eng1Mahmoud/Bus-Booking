@@ -1,4 +1,3 @@
-import * as React from "react";
 import PropTypes from "prop-types";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
@@ -11,6 +10,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { Loading } from "../general/Loading";
 import { useTranslation } from "react-i18next";
+import { useEffect, useState } from "react";
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
   return (
@@ -43,8 +43,8 @@ function a11yProps(index) {
   };
 }
 export default function TabsEdit() {
-  const [loading, setLoading] = React.useState(true);
-  const [user, setUser] = React.useState({});
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState({});
   const { t } = useTranslation();
   const fetchUser = async () => {
     try {
@@ -63,11 +63,11 @@ export default function TabsEdit() {
     } catch (err) {
     }
   };
-  const [value, setValue] = React.useState(0);
+  const [value, setValue] = useState(0);
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
-  React.useEffect(() => {
+  useEffect(() => {
     if (Cookies.get("token")) {
       fetchUser();
     }
