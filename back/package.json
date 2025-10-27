@@ -22,5 +22,8 @@
     "mongoose": "^7.0.3",
     "nodemailer": "^6.9.1",
     "nodemon": "^1.14.9"
+  },
+  "engines": {
+    "node": "22.x"
   }
 }
