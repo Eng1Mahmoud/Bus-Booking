@@ -61,7 +61,8 @@ export class UserService {
     return await UserModel.findOneAndUpdate({ email }, updates, { new: true });
   }
 
-  async deleteByEmail(email: string): Promise<any> {
-    return await UserModel.findOneAndDelete({ email }).exec();
+  async deleteByEmail(email: string): Promise<{ acknowledged: boolean; deletedCount: number } | null> {
+    const result = await UserModel.deleteOne({ email }).exec();
+    return result.deletedCount > 0 ? { acknowledged: true, deletedCount: result.deletedCount } : null;
   }
 }

@@ -25,8 +25,9 @@ export class AdminService {
     return await admin.save();
   }
 
-  async deleteByEmail(email: string): Promise<any> {
-    return await AdminModel.findOneAndDelete({ email }).exec();
+  async deleteByEmail(email: string): Promise<{ acknowledged: boolean; deletedCount: number } | null> {
+    const result = await AdminModel.deleteOne({ email }).exec();
+    return result.deletedCount > 0 ? { acknowledged: true, deletedCount: result.deletedCount } : null;
   }
 
   generateToken(email: string): string {
