@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1, width=device-width" />
+    <meta name="theme-color" content="#2c387e" />
+    <meta
+      name="description"
+      content="Tazkarty — book bus tickets across Egypt. Search routes, pick your seat, and pay online."
+    />
+    <link rel="icon" href="/logo.png" />
+    <link rel="apple-touch-icon" href="/logo.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <title>Tazkarty</title>
+
+    <!--
+      PayPal JS SDK. Vite substitutes %VITE_*% here at build time, so sandbox
+      and live can differ per environment; this was previously a live client id
+      hardcoded in the file, which made sandbox testing impossible.
+
+      `currency` MUST match PAYPAL_CURRENCY on the server — PayPal rejects a
+      capture whose currency differs from the one the buttons were loaded with.
+    -->
+    <script
+      defer
+      src="https://www.paypal.com/sdk/js?client-id=%VITE_PAYPAL_CLIENT_ID%&currency=USD&intent=capture"
+    ></script>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

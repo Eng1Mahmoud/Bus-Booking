@@ -316,7 +316,15 @@ Each phase is independently shippable and leaves the app running. Estimates assu
   - The client never sends a price, and `/bookings` stops accepting one.
 - Ticket email moves to a queued, rate-limited send after capture succeeds.
 
-### Phase 4 — Frontend: Vite + TypeScript + React 19 (2–3 days)
+### Phase 4 — Frontend: Vite + TypeScript + React 19 ✅ DONE
+
+> Versions landed higher than this plan assumed, because the ecosystem moved:
+> **MUI 9** (not 7), **Vite 8**, **react-router 7**, **swiper 14**,
+> **@react-three/fiber 9**. MUI 9 removed the v1 `Grid` outright, so all 39
+> `<Grid item xs=…>` became `<Grid size={{…}}>`, and system-prop shorthand
+> (`p`, `justifyContent`) moved into `sx`. The React Compiler is enabled through
+> `@vitejs/plugin-react`'s first-class `compiler: true` option rather than the
+> Babel plugin.
 
 - New Vite scaffold, port `src/` across; delete `react-scripts` (unmaintained), `web-vitals`,
   `prop-types`, `styled-components` (its only use is one `StyledField` in `MuiForm.jsx`,
