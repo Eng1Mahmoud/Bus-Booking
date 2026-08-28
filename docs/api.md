@@ -1,5 +1,10 @@
 # API surface
 
+> **Status after Phase 3.** `POST /book` is **retired** and returns 410.
+> Booking is now `POST /api/payments/orders` followed by
+> `POST /api/payments/orders/:orderId/capture`; the client never sends a price.
+> `POST /admin/book` still works, as an admin counter sale.
+>
 > **Status after Phase 2.** The auth endpoints no longer return verification
 > codes, and every `/admin/*` path — new and deprecated — requires an admin role
 > claim. Request and response shapes are otherwise unchanged.

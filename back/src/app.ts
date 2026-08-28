@@ -14,6 +14,7 @@ import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import tripRoutes from "./routes/tripRoutes.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
+import paymentRoutes from "./routes/paymentRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import legacyRoutes from "./routes/legacyRoutes.js";
 
@@ -46,6 +47,7 @@ export const createApp = () => {
   app.use("/api/users", userRoutes);
   app.use("/api/trips", tripRoutes);
   app.use("/api/bookings", bookingRoutes);
+  app.use("/api/payments", paymentRoutes);
   app.use("/api/admin", adminRoutes);
 
   // Deprecated aliases for the currently deployed frontend. Removed in Phase 5.

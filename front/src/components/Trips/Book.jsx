@@ -5,17 +5,20 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import Slide from "@mui/material/Slide";
-import { Box, Grid, Typography } from "@mui/material";
+import { Alert, Box, CircularProgress, Grid, Typography } from "@mui/material";
 import WeekendIcon from "@mui/icons-material/Weekend";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import Complet from "./Complet";
 import { useTranslation } from "react-i18next";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+
+const API = process.env.REACT_APP_API_URL || "https://booking-bus.onrender.com";
+
 const Transition = function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
-}
+};
 
 export default function Book({ tripDetils }) {
   const { t } = useTranslation();
@@ -24,70 +27,120 @@ export default function Book({ tripDetils }) {
   const [open, setOpen] = useState(false);
   const [openComplet, setOpenComplet] = useState(false);
   const [seatNumber, setSeatNumber] = useState(null);
-  const completBook = () => {
-    axios.post(
-      "https://booking-bus.onrender.com/book",
-      {
-        from: tripDetils.from,
-        to: tripDetils.to,
-        date: tripDetils.date,
-        busNumber: tripDetils.busNumber,
-        seatNumber: seatNumber,
-        seatePrice: tripDetils.price,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          authorization: `Bearer ${Cookies.get("token")}`,
-        },
-      }
-    );
-  };
-  // render paypal button
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const paypalRef = useRef(null);
 
+  const authHeaders = () => ({
+    "Content-Type": "application/json",
+    authorization: `Bearer ${Cookies.get("token")}`,
+  });
+
+  const seatSelection = () => ({
+    from: tripDetils.from,
+    to: tripDetils.to,
+    date: tripDetils.date,
+    busNumber: tripDetils.busNumber,
+    seatNumber,
+  });
+
+  /**
+   * The PayPal buttons no longer decide anything.
+   *
+   * Previously this component created the order in the browser with a price it
+   * chose, and on approval told the API "this is booked" — so the payment could
+   * be skipped entirely by calling the API directly. Now the server creates the
+   * order (picking the price from the trip itself) and captures it; the browser
+   * only ever handles an opaque order id.
+   */
   useEffect(() => {
-    const price = (tripDetils.price / 30).toFixed(2);
-    window.paypal
-      .Buttons({
-        createOrder: function (data, actions) {
-          return actions.order.create({
-            purchase_units: [
-              {
-                amount: {
-                  value: price,
-                },
-              },
-            ],
-          });
-        },
-        onApprove: function (data, actions) {
-          return actions.order.capture().then(function (details) {
-            setOpen(false);
-            setShowPide(false);
-            completBook();
-            setOpenComplet(true);
-          });
-        },
-      })
-      .render("#paypal-btn");
-  }, [showPide, tripDetils.price]);
+    if (!showPide || !seatNumber || !window.paypal || !paypalRef.current) return;
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
+    let cancelled = false;
+    let createdOrderId = null;
+    paypalRef.current.innerHTML = "";
+
+    const buttons = window.paypal.Buttons({
+      createOrder: async () => {
+        setError("");
+        const { data } = await axios.post(
+          `${API}/api/payments/orders`,
+          seatSelection(),
+          { headers: authHeaders() },
+        );
+        createdOrderId = data.orderId;
+        return data.orderId;
+      },
+
+      onApprove: async (data) => {
+        setBusy(true);
+        try {
+          await axios.post(
+            `${API}/api/payments/orders/${data.orderID}/capture`,
+            {},
+            { headers: authHeaders() },
+          );
+          if (cancelled) return;
+          setOpen(false);
+          setShowPide(false);
+          setOpenComplet(true);
+        } catch (err) {
+          setError(
+            err?.response?.data?.message ||
+              t("We could not confirm your payment. Please contact support."),
+          );
+        } finally {
+          setBusy(false);
+        }
+      },
+
+      // Releases the seat hold so an abandoned checkout does not take the seat
+      // off sale until its ten-minute hold lapses.
+      onCancel: () => {
+        if (!createdOrderId) return;
+        axios
+          .post(
+            `${API}/api/payments/orders/${createdOrderId}/cancel`,
+            {},
+            { headers: authHeaders() },
+          )
+          .catch(() => {});
+        setShowPide(false);
+      },
+
+      onError: () => {
+        setError(t("Something went wrong with the payment. Please try again."));
+      },
+    });
+
+    buttons.render(paypalRef.current);
+
+    // Without this the previous button instance stayed mounted and a second
+    // one was rendered on every price change.
+    return () => {
+      cancelled = true;
+      buttons.close?.();
+    };
+  }, [showPide, seatNumber]);
+
+  const handleClickOpen = () => setOpen(true);
 
   const handleClose = () => {
     setOpen(false);
     setShowPide(false);
+    setError("");
   };
-  const bookTrip = (SeatNumber) => {
-    setSeatNumber(SeatNumber);
+
+  const bookTrip = (selectedSeat) => {
     if (!Cookies.get("token")) {
       navigate("/login");
-    } else {
-      setShowPide(true);
+      return;
     }
+    setSeatNumber(selectedSeat);
+    setError("");
+    setShowPide(true);
   };
+
   return (
     <Box>
       <Complet opens={openComplet} />
@@ -114,8 +167,20 @@ export default function Book({ tripDetils }) {
             : t("Choose your seat and start booking")}
         </DialogTitle>
         <DialogContent sx={{ paddingTop: "20px" }}>
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
           {showPide ? (
-            <Box id="paypal-btn"></Box>
+            <Box>
+              {busy && (
+                <Box sx={{ textAlign: "center", mb: 2 }}>
+                  <CircularProgress size={24} />
+                </Box>
+              )}
+              <Box ref={paypalRef} />
+            </Box>
           ) : (
             <Grid container spacing={2}>
               {tripDetils.seats.map((seat, i) => {
@@ -123,7 +188,7 @@ export default function Book({ tripDetils }) {
                   <Grid
                     item
                     xs={6}
-                    key={i}
+                    key={seat.seatNumber ?? i}
                     sx={{
                       display: "flex",
                       justifyContent: "center",
@@ -138,7 +203,6 @@ export default function Book({ tripDetils }) {
                         fontWight: "bolder",
                       }}
                       onClick={() => {
-                        // check if seat is not booked
                         if (!seat.status) {
                           bookTrip(seat.seatNumber);
                         }
@@ -158,7 +222,7 @@ export default function Book({ tripDetils }) {
                           fontSize: "12px",
                         }}
                       >
-                        {i + 1}
+                        {seat.seatNumber ?? i + 1}
                       </Typography>
                     </Box>
                   </Grid>

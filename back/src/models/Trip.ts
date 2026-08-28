@@ -21,6 +21,9 @@ const seatSchema = new Schema<Seat>(
   {
     seatNumber: { type: Number, required: true },
     status: { type: Boolean, default: false },
+    // Null on free seats and on sold seats; a timestamp only while a checkout
+    // is in flight. `bookingService.releaseExpiredHolds` frees anything past it.
+    heldUntil: { type: Date, default: null },
   },
   { _id: false },
 );

@@ -77,3 +77,66 @@ export const sendVerificationCode = async (
     return false;
   }
 };
+
+export interface TicketDetails {
+  reference: string;
+  from: string;
+  to: string;
+  date: string;
+  busNumber: string;
+  seatNumber: number;
+  priceEGP: number;
+}
+
+const ticketTemplate = (ticket: TicketDetails): string => `
+  <div style="font-family:system-ui,-apple-system,Segoe UI,sans-serif;max-width:480px">
+    <h1 style="font-size:20px">Tazkarty — your ticket</h1>
+    <p style="font-size:13px;color:#666">Reference</p>
+    <p style="font-size:22px;font-weight:700;letter-spacing:2px;color:#1a66b9">
+      ${escapeHtml(ticket.reference)}
+    </p>
+    <table style="border-collapse:collapse;font-size:14px">
+      <tr><td style="padding:4px 16px 4px 0;color:#666">From</td><td><strong>${escapeHtml(ticket.from)}</strong></td></tr>
+      <tr><td style="padding:4px 16px 4px 0;color:#666">To</td><td><strong>${escapeHtml(ticket.to)}</strong></td></tr>
+      <tr><td style="padding:4px 16px 4px 0;color:#666">Date</td><td><strong>${escapeHtml(ticket.date)}</strong></td></tr>
+      <tr><td style="padding:4px 16px 4px 0;color:#666">Bus</td><td><strong>${escapeHtml(ticket.busNumber)}</strong></td></tr>
+      <tr><td style="padding:4px 16px 4px 0;color:#666">Seat</td><td><strong>${ticket.seatNumber}</strong></td></tr>
+      <tr><td style="padding:4px 16px 4px 0;color:#666">Paid</td><td><strong>${ticket.priceEGP} EGP</strong></td></tr>
+    </table>
+    <p style="color:#666;font-size:13px">Show this reference when boarding.</p>
+  </div>
+`;
+
+/**
+ * Sent after a payment is captured. Like `sendVerificationCode` it reports
+ * failure rather than throwing: a mail outage must never roll back a sale that
+ * has already taken the customer's money.
+ */
+export const sendTicket = async (
+  to: string,
+  ticket: TicketDetails,
+): Promise<boolean> => {
+  const client = getTransporter();
+
+  if (!client) {
+    logger.warn({ to }, "Mail is not configured; ticket email skipped");
+    return false;
+  }
+
+  try {
+    await client.sendMail({
+      from: env.MAIL_SENDER,
+      to,
+      subject: `Tazkarty ticket ${ticket.reference}`,
+      html: ticketTemplate(ticket),
+    });
+    logger.info({ to, reference: ticket.reference }, "Ticket email sent");
+    return true;
+  } catch (error) {
+    logger.error(
+      { err: error, to, reference: ticket.reference },
+      "Failed to send ticket email",
+    );
+    return false;
+  }
+};
