@@ -1,12 +1,13 @@
-html{
+html {
   scroll-behavior: smooth;
 }
-body,*{
+body,
+* {
   font-family: arabic !important;
   font-size: 17px;
 }
-.css-13sljp9{
-  min-width:100% !important;
+.css-13sljp9 {
+  min-width: 100% !important;
 }
 @font-face {
   font-family: arabic;

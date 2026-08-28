@@ -361,7 +361,7 @@ Each phase is independently shippable and leaves the app running. Estimates assu
 - Split `Navbar.jsx` (361 lines) into `Navbar` / `NavLinks` / `MobileDrawer` / `UserMenu`.
 - Extract the 27 hardcoded city names into `constants/stations.ts`.
 
-### Phase 8 — Quality & polish (2 days)
+### Phase 8 — Quality & polish ✅ DONE
 
 - **Backend:** Vitest + supertest + `mongodb-memory-server`. Non-negotiable coverage:
   password reset cannot be forged; a non-admin cannot reach `/api/admin/*`; a booking without
