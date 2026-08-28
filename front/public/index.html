@@ -16,6 +16,17 @@
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
-    <script defer src="https://www.paypal.com/sdk/js?client-id=Ad24c8x0j7Mxc0veqh-DoB6VqaEB2wF0tHz5mSm15ReEw_m8IbewIxTprdYtWpS0j1TRf5HArCEjVGmt"></script>
+    <!--
+      PayPal JS SDK. The client id comes from REACT_APP_PAYPAL_CLIENT_ID so
+      sandbox and live can differ per environment; it was previously a live
+      id hardcoded here, which made sandbox testing impossible.
+
+      `currency` MUST match PAYPAL_CURRENCY on the server. PayPal rejects a
+      capture whose currency differs from the one the buttons were loaded with.
+    -->
+    <script
+      defer
+      src="https://www.paypal.com/sdk/js?client-id=%REACT_APP_PAYPAL_CLIENT_ID%&currency=USD&intent=capture"
+    ></script>
   </body>
 </html>
