@@ -16,6 +16,7 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
+    "@hookform/resolvers": "^5.9.1",
     "@mui/icons-material": "^9.4.0",
     "@mui/material": "^9.4.0",
     "@mui/x-date-pickers": "^9.12.0",
@@ -25,17 +26,19 @@
     "@tanstack/react-query": "^5.102.8",
     "axios": "^1.8.4",
     "dayjs": "^1.11.13",
-    "formik": "^2.4.9",
     "framer-motion": "^13.1.1",
     "i18next": "^26.4.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
+    "react-hook-form": "^7.86.0",
     "react-i18next": "^17.0.12",
     "react-intersection-observer": "^9.16.0",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.18.2",
+    "react-toastify": "^11.1.0",
     "swiper": "^14.2.0",
-    "three": "^0.185.1"
+    "three": "^0.185.1",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/node": "^22.13.4",

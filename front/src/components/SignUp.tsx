@@ -1,53 +1,21 @@
-import type { TypographyProps } from "@mui/material";
-import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
-import CssBaseline from "@mui/material/CssBaseline";
-import TextField from "@mui/material/TextField";
+import {
+  Avatar,
+  Box,
+  CssBaseline,
+  Grid,
+  Paper,
+  Typography,
+  type TypographyProps,
+} from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
-import Paper from "@mui/material/Paper";
-import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import Typography from "@mui/material/Typography";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
-import background from "../assets/sinin.jpg";
-import { Formik, Form } from "formik";
-import type { FormikErrors, FormikHelpers } from "formik";
-import { authService } from "@/services/authService";
-import { CircularProgress } from "@mui/material";
+import background from "@/assets/sinin.jpg";
 import { useState } from "react";
 
-const initialValues = {
-  FName: "",
-  LName: "",
-  email: "",
-  password: "",
-};
-
-type FormValues = typeof initialValues;
-const validate = (values: FormValues) => {
-  const errors: FormikErrors<FormValues> = {};
-
-  if (!values.FName) {
-    errors.FName = "Please enter first name";
-  }
-  if (!values.LName) {
-    errors.LName = "Please enter last name";
-  }
-  if (!values.email) {
-    errors.email = "Required";
-  } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)) {
-    errors.email = "Invalid email address";
-  }
-
-  if (!values.password) {
-    errors.password = "Required";
-  } else if (values.password.length < 8) {
-    errors.password = "Password must be at least 8 characters long";
-  }
-
-  return errors;
-};
+import { Form } from "@/components/forms/Form";
+import { InputField } from "@/components/forms/InputField";
+import { signUpSchema, type SignUpValues } from "@/schemas";
+import { authService } from "@/services/authService";
 
 function Copyright(props: TypographyProps) {
   return (
@@ -56,189 +24,123 @@ function Copyright(props: TypographyProps) {
       <Link color="inherit" to="/">
         Tazkarty
       </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
+      {new Date().getFullYear()}.
     </Typography>
   );
 }
-const theme = createTheme();
 
 export default function SignUp() {
-  const [loading, setLoading] = useState(false);
-  const [exist, setExist] = useState({ exist: false, message: "" });
   const navigate = useNavigate();
-  const onSubmit = (values: FormValues, { resetForm }: FormikHelpers<FormValues>) => {
-    setLoading(true);
-    authService
-      .register(values)
-      .then((res) => {
-        if (res.exist) {
-          setTimeout(() => {
-            setLoading(false);
-            setExist({ exist: true, message: res.message });
-            resetForm();
-          }, 1000);
-        } else {
-          setTimeout(() => {
-            setLoading(false);
-            navigate("/verification", { state: { email: values.email } });
-          }, 1000);
-        }
-      })
-      .catch(() => {});
+  const [error, setError] = useState<string>();
 
-    resetForm();
+  const onSubmit = async (values: SignUpValues) => {
+    const result = await authService.register(values);
+
+    if (result.exist) {
+      setError(result.message);
+      return;
+    }
+
+    // Only the address travels on, as router state. The code is emailed and
+    // checked server-side; the password never leaves this component.
+    navigate("/verification", { state: { email: values.email } });
   };
-  return (
-    <ThemeProvider theme={theme}>
-      <Box
-        sx={{
-          width: "100%",
-          p: [0, 6],
-          height: ["100vh", "100vh", "110vh"],
-          backgroundColor: "#1a66b999",
-          direction: "ltr",
-        }}
-      >
-        <Grid container sx={{ height: ["100%", "100%", "80%"] }}>
-          <CssBaseline />
 
-          <Grid
-            size={{ xs: 12, sm: 8, md: 5 }}
-            component={Paper}
+  return (
+    <Box
+      sx={{
+        width: "100%",
+        p: [0, 6],
+        height: ["100vh", "100vh", "110vh"],
+        backgroundColor: "#1a66b999",
+        direction: "ltr",
+      }}
+    >
+      <Grid container sx={{ height: ["100%", "100%", "80%"] }}>
+        <CssBaseline />
+        <Grid
+          size={{ xs: 12, sm: 8, md: 5 }}
+          component={Paper}
+          sx={{
+            borderTopLeftRadius: ["0px", "30px"],
+            borderBottomLeftRadius: ["0px", "30px"],
+          }}
+        >
+          <Box
             sx={{
-              borderTopLeftRadius: ["0px", "30px"],
-              borderBottomLeftRadius: ["0px", "30px"],
+              mx: 4,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
             }}
           >
-            <Box
-              sx={{
-                mx: 4,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-              }}
+            <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
+              <LockOutlinedIcon />
+            </Avatar>
+            <Typography component="h1" variant="h5" sx={{ pb: 2 }}>
+              Sign Up
+            </Typography>
+
+            <Form
+              schema={signUpSchema}
+              defaultValues={{ FName: "", LName: "", email: "", password: "" }}
+              onSubmit={onSubmit}
+              submitLabel="Sign Up"
+              error={error}
             >
-              <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-                <LockOutlinedIcon />
-              </Avatar>
-              <Typography component="h1" variant="h5" sx={{ pb: 2 }}>
-                Sign Up
-              </Typography>
-              <Formik
-                initialValues={initialValues}
-                onSubmit={onSubmit}
-                validate={validate}
-              >
-                {({ values, errors, touched, handleChange, handleBlur }) => (
-                  <Form>
-                    <Grid container spacing={2}>
-                      <Grid size={{ xs: 12, sm: 6 }}>
-                        <TextField
-                          fullWidth
-                          id="FName"
-                          label="First Name"
-                          name="FName"
-                          value={values.FName}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          error={touched.FName && errors.FName ? true : false}
-                          helperText={touched.FName && errors.FName ? errors.FName : ""}
-                        />
-                      </Grid>
-                      <Grid size={{ xs: 12, sm: 6 }}>
-                        <TextField
-                          fullWidth
-                          id="LName"
-                          label="Last Name"
-                          name="LName"
-                          value={values.LName}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          error={touched.LName && errors.LName ? true : false}
-                          helperText={touched.LName && errors.LName ? errors.LName : ""}
-                        />
-                      </Grid>
-                      <Grid size={12}>
-                        <TextField
-                          fullWidth
-                          id="email"
-                          label="Email Address"
-                          name="email"
-                          autoComplete="email"
-                          autoFocus
-                          value={values.email}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          error={touched.email && errors.email ? true : false}
-                          helperText={touched.email && errors.email ? errors.email : ""}
-                        />
-                      </Grid>
-                      <Grid size={12}>
-                        <TextField
-                          margin="normal"
-                          required
-                          fullWidth
-                          name="password"
-                          label="Password"
-                          type="password"
-                          id="password"
-                          error={touched.password && errors.password ? true : false}
-                          helperText={
-                            touched.password && errors.password ? errors.password : ""
-                          }
-                          autoComplete="current-password"
-                          value={values.password}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                        />
-                      </Grid>
-                    </Grid>
-                    <Typography variant="body1" sx={{ color: "red" }}>
-                      {exist.exist ? exist.message : ""}
-                    </Typography>
-                    <Button
-                      type="submit"
-                      fullWidth
-                      variant="contained"
-                      sx={{ my: 2 }}
-                      disabled={loading}
-                      startIcon={loading && <CircularProgress size={20} />}
-                    >
-                      Sign Up
-                    </Button>
-                    <Grid container sx={{ justifyContent: "flex-end" }}>
-                      <Grid>
-                        <Link
-                          to="/login"
-                          style={{ textDecoration: "none", fontSize: "20px" }}
-                        >
-                          Already have an account?{" "}
-                          <strong style={{ color: "blue" }}>Sign in</strong>
-                        </Link>
-                      </Grid>
-                    </Grid>
-                    <Copyright sx={{ mt: 3, pb: 3 }} />
-                  </Form>
-                )}
-              </Formik>
-            </Box>
-          </Grid>
-          <Grid
-            size={{ xs: false, sm: 4, md: 7 }}
-            sx={{
-              backgroundImage: `url(${background})`,
-              backgroundRepeat: "no-repeat",
-              backgroundColor: (t) =>
-                t.palette.mode === "light" ? t.palette.grey[50] : t.palette.grey[900],
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              borderTopRightRadius: "30px",
-              borderBottomRightRadius: "30px",
-            }}
-          />
+              <Grid container spacing={2}>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <InputField
+                    name="FName"
+                    label="First Name"
+                    autoComplete="given-name"
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <InputField
+                    name="LName"
+                    label="Last Name"
+                    autoComplete="family-name"
+                  />
+                </Grid>
+              </Grid>
+              <InputField
+                name="email"
+                label="Email Address"
+                type="email"
+                autoComplete="email"
+              />
+              <InputField
+                name="password"
+                label="Password"
+                type="password"
+                autoComplete="new-password"
+              />
+            </Form>
+
+            <Grid container sx={{ justifyContent: "flex-end" }}>
+              <Grid>
+                <Link to="/login" style={{ textDecoration: "none", fontSize: "20px" }}>
+                  Already have an account?{" "}
+                  <strong style={{ color: "blue" }}>Sign in</strong>
+                </Link>
+              </Grid>
+            </Grid>
+            <Copyright sx={{ mt: 3, pb: 3 }} />
+          </Box>
         </Grid>
-      </Box>
-    </ThemeProvider>
+        <Grid
+          size={{ xs: false, sm: 4, md: 7 }}
+          sx={{
+            backgroundImage: `url(${background})`,
+            backgroundRepeat: "no-repeat",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            borderTopRightRadius: "30px",
+            borderBottomRightRadius: "30px",
+          }}
+        />
+      </Grid>
+    </Box>
   );
 }

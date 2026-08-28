@@ -1,46 +1,21 @@
-import type { TypographyProps } from "@mui/material";
 import {
   Avatar,
-  Button,
-  CssBaseline,
-  TextField,
-  Paper,
   Box,
+  CssBaseline,
   Grid,
+  Paper,
   Typography,
-  CircularProgress,
+  type TypographyProps,
 } from "@mui/material";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
-import background from "../assets/sinin.jpg";
-import { Formik, Form } from "formik";
-import type { FormikErrors, FormikHelpers } from "formik";
-import { authService } from "@/services/authService";
+import background from "@/assets/sinin.jpg";
 import { useState } from "react";
-const initialValues = {
-  email: "",
-  password: "",
-};
 
-type FormValues = typeof initialValues;
-
-const validate = (values: FormValues) => {
-  const errors: FormikErrors<FormValues> = {};
-  if (!values.email) {
-    errors.email = "Required";
-  } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)) {
-    errors.email = "Invalid email address";
-  }
-
-  if (!values.password) {
-    errors.password = "Required";
-  } else if (values.password.length < 8) {
-    errors.password = "Password must be at least 8 characters long";
-  }
-
-  return errors;
-};
+import { Form } from "@/components/forms/Form";
+import { InputField } from "@/components/forms/InputField";
+import { loginSchema, type LoginValues } from "@/schemas";
+import { authService } from "@/services/authService";
 
 function Copyright(props: TypographyProps) {
   return (
@@ -49,173 +24,125 @@ function Copyright(props: TypographyProps) {
       <Link color="inherit" to="/">
         Tazkarty
       </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
+      {new Date().getFullYear()}.
     </Typography>
   );
 }
-
-const theme = createTheme();
 
 export default function SignIn() {
   const navigate = useNavigate();
   // ProtectedRoute records the page that bounced them here.
   const { state } = useLocation() as { state?: { from?: string } };
-  const [loading, setLoading] = useState(false);
-  const [exist, setExist] = useState<{ exist: boolean | null; message: string }>({
-    exist: null,
-    message: "",
-  });
-  const onSubmit = (values: FormValues, { resetForm }: FormikHelpers<FormValues>) => {
-    setLoading(true);
-    authService
-      .login(values)
-      .then((res) => {
-        if (res.exist) {
-          setTimeout(() => {
-            setLoading(false);
-            resetForm();
-            navigate(state?.from ?? "/", { replace: true });
-          }, 1000);
-        } else {
-          setTimeout(() => {
-            setLoading(false);
-            setExist({ exist: false, message: res.message });
-          }, 1000);
-        }
-      })
-      .catch(() => {});
+  const [error, setError] = useState<string>();
 
-    resetForm();
+  const onSubmit = async (values: LoginValues) => {
+    const result = await authService.login(values);
+
+    // The API answers 200 with `exist: false` for a bad credential rather than
+    // a 401, so a failure arrives as data and has to be checked, not caught.
+    if (!result.exist) {
+      setError(result.message);
+      return;
+    }
+
+    // No artificial delay. Every one of these forms used to sit on a
+    // setTimeout(…, 1000) before navigating.
+    navigate(state?.from ?? "/", { replace: true });
   };
+
   return (
-    <ThemeProvider theme={theme}>
-      <Box
-        sx={{
-          width: "100%",
-          p: [0, 6],
-          height: ["100vh", "100vh", "103vh"],
-          backgroundColor: "#1a66b999",
-          direction: "ltr",
-        }}
-      >
-        <Grid container sx={{ height: ["100%", "100%", "80%"] }}>
-          <CssBaseline />
-          <Grid
-            size={{ xs: false, sm: 4, md: 7 }}
+    <Box
+      sx={{
+        width: "100%",
+        p: [0, 6],
+        height: ["100vh", "100vh", "103vh"],
+        backgroundColor: "#1a66b999",
+        direction: "ltr",
+      }}
+    >
+      <Grid container sx={{ height: ["100%", "100%", "80%"] }}>
+        <CssBaseline />
+        <Grid
+          size={{ xs: false, sm: 4, md: 7 }}
+          sx={{
+            backgroundImage: `url(${background})`,
+            backgroundRepeat: "no-repeat",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            borderTopLeftRadius: ["0px", "30px"],
+            borderBottomLeftRadius: ["0px", "30px"],
+          }}
+        />
+        <Grid
+          size={{ xs: 12, sm: 8, md: 5 }}
+          component={Paper}
+          elevation={6}
+          sx={{
+            borderTopRightRadius: ["0px", "30px"],
+            borderBottomRightRadius: ["0px", "30px"],
+          }}
+        >
+          <Box
             sx={{
-              backgroundImage: `url(${background})`,
-              backgroundRepeat: "no-repeat",
-              backgroundColor: (t) =>
-                t.palette.mode === "light" ? t.palette.grey[50] : t.palette.grey[900],
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              borderTopLeftRadius: ["0px", "30px"],
-              borderBottomLeftRadius: ["0px", "30px"],
-            }}
-          />
-          <Grid
-            size={{ xs: 12, sm: 8, md: 5 }}
-            component={Paper}
-            elevation={6}
-            sx={{
-              borderTopRightRadius: ["0px", "30px"],
-              borderBottomRightRadius: ["0px", "30px"],
+              my: 5,
+              mx: 4,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
             }}
           >
-            <Box
-              sx={{
-                my: 5,
-                mx: 4,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-              }}
-            >
-              <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-                <LockOutlinedIcon />
-              </Avatar>
-              <Typography component="h1" variant="h5" sx={{ mb: 2 }}>
-                Sign in
-              </Typography>
-              <Formik
-                initialValues={initialValues}
-                onSubmit={onSubmit}
-                validate={validate}
-              >
-                {({ values, errors, touched, handleChange, handleBlur }) => (
-                  <Form>
-                    <TextField
-                      fullWidth
-                      id="email"
-                      label="Email Address"
-                      name="email"
-                      autoComplete="email"
-                      autoFocus
-                      value={values.email}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      error={touched.email && errors.email ? true : false}
-                      helperText={touched.email && errors.email ? errors.email : ""}
-                    />
-                    <TextField
-                      margin="normal"
-                      required
-                      fullWidth
-                      name="password"
-                      label="Password"
-                      type="password"
-                      id="password"
-                      error={touched.password && errors.password ? true : false}
-                      helperText={
-                        touched.password && errors.password ? errors.password : ""
-                      }
-                      autoComplete="current-password"
-                      value={values.password}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                    />
+            <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
+              <LockOutlinedIcon />
+            </Avatar>
+            <Typography component="h1" variant="h5" sx={{ mb: 2 }}>
+              Sign in
+            </Typography>
 
-                    <Typography variant="body1" sx={{ color: "red" }}>
-                      {exist.exist ? "" : exist.message}
-                    </Typography>
-                    <Button
-                      type="submit"
-                      fullWidth
-                      variant="contained"
-                      sx={{ mt: 3, mb: 2 }}
-                      disabled={loading}
-                      startIcon={loading && <CircularProgress size={20} />}
-                    >
-                      Sign In
-                    </Button>
-                    <Grid container>
-                      <Grid size={12}>
-                        <Link
-                          to="/register"
-                          style={{ textDecoration: "none", fontSize: "20px" }}
-                        >
-                          Don't have an account?{" "}
-                          <strong style={{ color: "blue" }}>Sign Up</strong>
-                        </Link>
-                      </Grid>
-                      <Grid size={12}>
-                        <Link
-                          to="/ForgetPassword"
-                          style={{ textDecoration: "none", fontSize: "20px" }}
-                        >
-                          Forgot your password?
-                        </Link>
-                      </Grid>
-                    </Grid>
-                    <Copyright sx={{ mt: 5 }} />
-                  </Form>
-                )}
-              </Formik>
-            </Box>
-          </Grid>
+            <Form
+              schema={loginSchema}
+              defaultValues={{ email: "", password: "" }}
+              onSubmit={onSubmit}
+              submitLabel="Sign In"
+              error={error}
+            >
+              <InputField
+                name="email"
+                label="Email Address"
+                type="email"
+                autoComplete="email"
+                autoFocus
+              />
+              <InputField
+                name="password"
+                label="Password"
+                type="password"
+                autoComplete="current-password"
+              />
+            </Form>
+
+            <Grid container>
+              <Grid size={12}>
+                <Link
+                  to="/register"
+                  style={{ textDecoration: "none", fontSize: "20px" }}
+                >
+                  Don&apos;t have an account?{" "}
+                  <strong style={{ color: "blue" }}>Sign Up</strong>
+                </Link>
+              </Grid>
+              <Grid size={12}>
+                <Link
+                  to="/ForgetPassword"
+                  style={{ textDecoration: "none", fontSize: "20px" }}
+                >
+                  Forgot your password?
+                </Link>
+              </Grid>
+            </Grid>
+            <Copyright sx={{ mt: 5 }} />
+          </Box>
         </Grid>
-      </Box>
-    </ThemeProvider>
+      </Grid>
+    </Box>
   );
 }

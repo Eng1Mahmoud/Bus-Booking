@@ -1,120 +1,46 @@
+import { Container } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+
+import { Form } from "@/components/forms/Form";
+import { InputField } from "@/components/forms/InputField";
+import { profileSchema, type ProfileValues } from "@/schemas";
 import { userService } from "@/services/userService";
 import { queryKeys } from "@/api/queryClient";
-import { Container, TextField, Button, Grid, Box } from "@mui/material";
-import { Formik, Form, Field } from "formik";
-import type { FormikErrors } from "formik";
 import type { UserProfile } from "@/types";
-import { useState } from "react";
-import { useTranslation } from "react-i18next";
-interface FormValues {
-  FName: string;
-  LName: string;
-  email: string;
-}
 
 interface ChangeInfoProps {
   oldInformation: UserProfile;
 }
 
-const validate = (values: FormValues) => {
-  const errors: FormikErrors<FormValues> = {};
-  if (!values.FName) {
-    errors.FName = "Required";
-  }
-
-  if (!values.LName) {
-    errors.LName = "Required";
-  }
-
-  if (!values.email) {
-    errors.email = "Required";
-  } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)) {
-    errors.email = "Invalid email address";
-  }
-
-  return errors;
-};
 export const ChangeInfo = ({ oldInformation }: ChangeInfoProps) => {
-  const [newInformation, setNewInformation] = useState<UserProfile | null>(null);
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const initialValues: FormValues = {
-    FName: newInformation?.FName ?? oldInformation.FName,
-    LName: newInformation?.LName ?? oldInformation.LName,
-    email: newInformation?.email ?? oldInformation.email,
-  };
-  const handleSubmit = async (values: FormValues) => {
-    try {
-      setNewInformation(await userService.updateProfile(values));
-      await queryClient.invalidateQueries({ queryKey: queryKeys.profile });
-    } catch {
-      // Surfaced to the user in Phase 7, alongside the react-hook-form rewrite.
-    }
+
+  const onSubmit = async (values: ProfileValues) => {
+    await userService.updateProfile(values);
+    // The navbar reads the same query, so its name and avatar follow.
+    await queryClient.invalidateQueries({ queryKey: queryKeys.profile });
   };
 
   return (
-    <Container sx={{ paddingY: "50px" }}>
-      <Formik initialValues={initialValues} validate={validate} onSubmit={handleSubmit}>
-        {({ values, errors, touched, handleChange, handleBlur, isSubmitting }) => (
-          <Form>
-            <Box>
-              <Grid container spacing={2}>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <Field
-                    as={TextField}
-                    fullWidth
-                    id="FName"
-                    name="FName"
-                    value={values.FName}
-                    label={t("First Name")}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={touched.FName && errors.FName ? true : false}
-                    helperText={touched.FName && errors.FName ? errors.FName : ""}
-                  />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <Field
-                    as={TextField}
-                    fullWidth
-                    id="LName"
-                    name="LName"
-                    label={t("Last Name")}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={touched.LName && errors.LName ? true : false}
-                    helperText={touched.LName && errors.LName ? errors.LName : ""}
-                  />
-                </Grid>
-                <Grid size={12}>
-                  <Field
-                    as={TextField}
-                    fullWidth
-                    id="email"
-                    name="email"
-                    label={t("Email")}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={touched.email && errors.email ? true : false}
-                    helperText={touched.email && errors.email ? errors.email : ""}
-                  />
-                </Grid>
-                <Grid size={12}>
-                  <Button
-                    variant="contained"
-                    color="secondary"
-                    type="submit"
-                    disabled={isSubmitting || Object.keys(errors).length > 0}
-                  >
-                    {t("Save")}
-                  </Button>{" "}
-                </Grid>
-              </Grid>
-            </Box>
-          </Form>
-        )}
-      </Formik>
+    <Container maxWidth="sm">
+      <Form
+        schema={profileSchema}
+        defaultValues={{
+          FName: oldInformation.FName,
+          LName: oldInformation.LName,
+          email: oldInformation.email,
+        }}
+        onSubmit={onSubmit}
+        submitLabel={t("Save")}
+      >
+        <InputField name="FName" label={t("First Name")} autoComplete="given-name" />
+        <InputField name="LName" label={t("Last Name")} autoComplete="family-name" />
+        <InputField name="email" label={t("Email")} type="email" autoComplete="email" />
+      </Form>
     </Container>
   );
 };
+
+export default ChangeInfo;
