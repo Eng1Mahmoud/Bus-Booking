@@ -15,7 +15,8 @@
     "typecheck": "tsc --noEmit",
     "migrate:admins": "tsx src/scripts/hashExistingAdmins.ts",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "dev:local": "tsx src/scripts/devLocal.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
