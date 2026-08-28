@@ -34,7 +34,6 @@ export const ForgetPassword = () => {
     authService
       .forgotPassword(values.email)
       .then((res) => {
-        sessionStorage.setItem("resetEmail", res.email);
         setLoading(false);
         if (res.send) {
           navigate("/NewPassword");

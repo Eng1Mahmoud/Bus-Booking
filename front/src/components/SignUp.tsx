@@ -72,7 +72,6 @@ export default function SignUp() {
     authService
       .register(values)
       .then((res) => {
-        sessionStorage.setItem("pendingEmail", values.email);
         if (res.exist) {
           setTimeout(() => {
             setLoading(false);
@@ -82,7 +81,7 @@ export default function SignUp() {
         } else {
           setTimeout(() => {
             setLoading(false);
-            navigate("/verification");
+            navigate("/verification", { state: { email: values.email } });
           }, 1000);
         }
       })

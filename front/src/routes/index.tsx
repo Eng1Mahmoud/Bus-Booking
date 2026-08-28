@@ -8,6 +8,7 @@ import { ForgetPassword } from "@/pages/ForgetPassword";
 import { NewPassword } from "@/pages/NewPassword";
 import NotFound from "@/pages/NotFound";
 import { FallbackLoading } from "@/components/general/FallbackLoading";
+import { GuestRoute, ProtectedRoute } from "./guards";
 
 const Home = lazy(() => import("@/pages/HomePage"));
 const AboutPage = lazy(() => import("@/pages/AboutPage"));
@@ -29,23 +30,36 @@ export const router = createBrowserRouter([
       { index: true, element: deferred(<Home />) },
       { path: "faqs", element: deferred(<FaqPage />) },
       /**
-       * The path used to be "about us", with a literal space. Browsers
-       * percent-encode it to `/about%20us`, which is why the address bar
-       * looked wrong. Renamed to `about-us`, with the old path kept as a
-       * redirect so existing links and bookmarks still resolve.
+       * The path used to be "about us", with a literal space, which browsers
+       * percent-encode to `/about%20us`. Renamed, with the old path kept as an
+       * alias so existing links and bookmarks still resolve.
        */
       { path: "about-us", element: deferred(<AboutPage />) },
       { path: "about us", element: deferred(<AboutPage />) },
-      { path: "settings", element: deferred(<SettingsPage />) },
       { path: "stations", element: deferred(<StationsPage />) },
       { path: "trips", element: deferred(<TripsPage />) },
+
+      // Settings reads and writes the signed-in account, so it must not mount
+      // for an anonymous visitor who types the URL.
+      {
+        element: <ProtectedRoute />,
+        children: [{ path: "settings", element: deferred(<SettingsPage />) }],
+      },
     ],
   },
-  { path: "login", element: <SignInPage /> },
-  { path: "register", element: <SignUpPage /> },
-  { path: "verification", element: deferred(<VerificationPage />) },
-  { path: "ForgetPassword", element: <ForgetPassword /> },
-  { path: "NewPassword", element: <NewPassword /> },
+
+  // Signing in while already signed in is a dead end; these bounce home.
+  {
+    element: <GuestRoute />,
+    children: [
+      { path: "login", element: <SignInPage /> },
+      { path: "register", element: <SignUpPage /> },
+      { path: "verification", element: deferred(<VerificationPage />) },
+      { path: "ForgetPassword", element: <ForgetPassword /> },
+      { path: "NewPassword", element: <NewPassword /> },
+    ],
+  },
+
   { path: "*", element: <NotFound /> },
 ]);
 
