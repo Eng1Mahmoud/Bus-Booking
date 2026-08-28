@@ -1,5 +1,5 @@
 import type { NextFunction, Request, RequestHandler, Response } from "express";
-import { ZodError, type ZodTypeAny, z } from "zod";
+import { type ZodTypeAny, z } from "zod";
 
 interface ValidationSchemas {
   body?: ZodTypeAny;
@@ -28,8 +28,9 @@ export const validate = (schemas: ValidationSchemas): RequestHandler => {
       };
       next();
     } catch (error) {
-      // Surfaced by errorHandler as a 400 with per-field messages.
-      next(error instanceof ZodError ? error : error);
+      // A ZodError here is surfaced by errorHandler as a 400 with per-field
+      // messages; anything else falls through to its generic handling.
+      next(error);
     }
   };
 };
