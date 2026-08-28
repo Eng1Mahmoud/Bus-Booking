@@ -6,8 +6,21 @@ let transporter: Transporter | null = null;
 
 const getTransporter = (): Transporter | null => {
   if (!env.mailEnabled) return null;
+  /**
+   * Explicit host and port rather than `service: "Gmail"`, which resolves to
+   * implicit TLS on 465. Outbound 465 is commonly blocked — by corporate
+   * firewalls, by some ISPs, and by consumer antivirus mail shields — while
+   * 587 with STARTTLS is the standard submission port and is usually allowed.
+   *
+   * This is not hypothetical: on 465 this host reached Gmail's AAAA record and
+   * got ECONNREFUSED before TLS was attempted. On 587 it connects over IPv4
+   * without needing an explicit address family.
+   */
   transporter ??= nodemailer.createTransport({
-    service: "Gmail",
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false,
+    requireTLS: true,
     auth: { user: env.MAIL_SENDER, pass: env.MAIL_PASSWORD },
   });
   return transporter;

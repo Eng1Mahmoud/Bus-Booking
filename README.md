@@ -95,6 +95,29 @@ Runs the API against a throwaway in-memory MongoDB, pre-seeded with a rider, an
 admin and a week of trips. No Atlas, no mongod, no credentials — the database is
 discarded on exit, so every run starts from the same state.
 
+### Antivirus and TLS
+
+Some consumer antivirus products (AVG and Avast among them) intercept outbound
+TLS, including SMTP. Node then cannot verify the substituted certificate and
+mail fails with `unable to verify the first certificate`, while the API still
+answers "code sent" — it deliberately does not reveal whether delivery worked.
+
+If verification emails never arrive, check the API log for
+`Failed to send verification email`, then run Node with the system trust store:
+
+```bash
+node --use-system-ca dist/server.js
+```
+
+Or set it once for every Node process:
+
+```powershell
+[Environment]::SetEnvironmentVariable('NODE_OPTIONS','--use-system-ca','User')
+```
+
+Also check `NODE_EXTRA_CA_CERTS`. If it points at a file that does not exist,
+Node warns on every start and certificate verification fails regardless.
+
 ### A note on the connection string
 
 If your Atlas password contains any of `@ : / ? # [ ] %` it **must** be
