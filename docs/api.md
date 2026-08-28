@@ -1,4 +1,10 @@
-# Current API surface (pre-refactor baseline)
+# API surface
+
+> **Status after Phase 1.** Every path in the "Now" column below is still
+> served, as a deprecated alias in `back/src/routes/legacyRoutes.ts`, so the
+> deployed frontend keeps working. The "Target" column is now live and is what
+> new clients should call. Phase 5 repoints the frontend, after which the
+> aliases and that file are deleted.
 
 Captured before any refactoring so that no endpoint is silently dropped during
 the migration. Base URL in production: `https://booking-bus.onrender.com`
