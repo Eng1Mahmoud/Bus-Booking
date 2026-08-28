@@ -16,7 +16,9 @@
     "migrate:admins": "tsx src/scripts/hashExistingAdmins.ts",
     "test": "vitest run",
     "test:watch": "vitest",
-    "dev:local": "tsx src/scripts/devLocal.ts"
+    "dev:local": "tsx src/scripts/devLocal.ts",
+    "seed": "tsx src/scripts/seed.ts",
+    "seed:admin": "tsx src/scripts/seedAdmin.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",

@@ -2,7 +2,7 @@
   "name": "bus-booking",
   "version": "1.0.0",
   "private": true,
-  "description": "Tazkarty — bus ticket booking platform (Express API + React SPA)",
+  "description": "Tazkarty \u2014 bus ticket booking platform (Express API + React SPA)",
   "author": "Mahmoud Mohamed <mahmoudabbamalik@gmail.com>",
   "license": "ISC",
   "engines": {
@@ -14,7 +14,9 @@
     "install:all": "npm install && npm --prefix back install && npm --prefix front install",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "seed": "tsx src/scripts/seed.ts",
+    "seed:admin": "tsx src/scripts/seedAdmin.ts"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,mjs,cjs}": [

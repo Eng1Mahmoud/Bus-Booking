@@ -66,6 +66,43 @@ npm run dev:back    # http://localhost:5000
 npm run dev:front   # http://localhost:3000
 ```
 
+### Seeding
+
+An empty database gives you nothing to search for.
+
+```bash
+npm --prefix back run seed              # trips for the next 14 days
+npm --prefix back run seed -- --days 30 # a longer window
+npm --prefix back run seed -- --reset   # replace what is there
+```
+
+`seed` is additive and refuses to overwrite existing trips without `--reset`.
+It only writes to `trips`; accounts and bookings are never touched.
+
+Admins need a password, so they are a separate, deliberate step:
+
+```bash
+SEED_ADMIN_EMAIL=you@example.com SEED_ADMIN_PASSWORD='...' npm --prefix back run seed:admin
+```
+
+### No database to hand?
+
+```bash
+npm --prefix back run dev:local
+```
+
+Runs the API against a throwaway in-memory MongoDB, pre-seeded with a rider, an
+admin and a week of trips. No Atlas, no mongod, no credentials — the database is
+discarded on exit, so every run starts from the same state.
+
+### A note on the connection string
+
+If your Atlas password contains any of `@ : / ? # [ ] %` it **must** be
+percent-encoded in `MONGO_URI` — `@` becomes `%40`. The driver splits the URI at
+the first `@`, so an unescaped one turns the rest of your password into the
+hostname and you get `querySrv ENOTFOUND`. Generating the password from Atlas's
+own "Autogenerate Secure Password" avoids the problem entirely.
+
 The dev server proxies `/api` to the API, so the two are same-origin in
 development and CORS never applies. `front/.env.local` can leave
 `VITE_API_URL` empty because of that.
