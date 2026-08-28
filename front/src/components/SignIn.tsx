@@ -16,8 +16,7 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import background from "../assets/sinin.jpg";
 import { Formik, Form } from "formik";
 import type { FormikErrors, FormikHelpers } from "formik";
-import Cookies from "js-cookie";
-import axios from "axios";
+import { authService } from "@/services/authService";
 import { useState } from "react";
 const initialValues = {
   email: "",
@@ -67,12 +66,10 @@ export default function SignIn() {
   });
   const onSubmit = (values: FormValues, { resetForm }: FormikHelpers<FormValues>) => {
     setLoading(true);
-    axios
-      .post("https://booking-bus.onrender.com/login/", values)
+    authService
+      .login(values)
       .then((res) => {
-        Cookies.set("token", res.data.token);
-
-        if (res.data.exist) {
+        if (res.exist) {
           setTimeout(() => {
             setLoading(false);
             resetForm();
@@ -81,7 +78,7 @@ export default function SignIn() {
         } else {
           setTimeout(() => {
             setLoading(false);
-            setExist({ exist: false, message: res.data.message });
+            setExist({ exist: false, message: res.message });
           }, 1000);
         }
       })

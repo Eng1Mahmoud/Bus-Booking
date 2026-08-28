@@ -4,7 +4,7 @@ import { Formik, Form } from "formik";
 import type { FormikErrors, FormikHelpers } from "formik";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
-import axios from "axios";
+import { authService } from "@/services/authService";
 import { useNavigate } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
 
@@ -34,24 +34,22 @@ export const Verification = () => {
   const onSubmit = (values: FormValues, { resetForm }: FormikHelpers<FormValues>) => {
     setLoading(true);
 
-    // The API now looks the code up server-side and ignores what the browser
-    // sends, but the pending signup's email still comes from here.
-    const storedUser = sessionStorage.getItem("user");
-    const data = {
-      verificationCode: values.verificationCode,
-      user: storedUser ? (JSON.parse(storedUser) as { email: string }) : null,
-    };
-    axios
-      .post("https://booking-bus.onrender.com/verification", data)
+    authService
+      .verifyEmail({
+        verificationCode: values.verificationCode,
+        // Set by SignUp. The code itself is checked server-side; only the
+        // address is needed to find the pending registration.
+        email: sessionStorage.getItem("pendingEmail") ?? "",
+      })
       .then((res) => {
-        if (res.data.verification) {
+        if (res.verification) {
           setTimeout(() => {
             setVerificationStatus({ verified: true, message: "" });
             setLoading(false);
             resetForm();
           }, 1000);
         } else {
-          setVerificationStatus({ verified: false, message: res.data.message });
+          setVerificationStatus({ verified: false, message: res.message });
           setTimeout(() => {
             setLoading(false);
           }, 1000);

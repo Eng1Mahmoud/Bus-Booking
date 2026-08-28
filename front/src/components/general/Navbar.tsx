@@ -1,5 +1,7 @@
-import type { UserProfile } from "@/types";
-import { useEffect, useState, type MouseEvent } from "react";
+import { authService } from "@/services/authService";
+import { useAuth } from "@/hooks/useAuth";
+import { useProfile } from "@/hooks/useProfile";
+import { useState, type MouseEvent } from "react";
 import {
   Container,
   AppBar,
@@ -29,11 +31,9 @@ import SignOutIcon from "@mui/icons-material/Logout";
 import { Link } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
-import Cookies from "js-cookie";
 import logo from "../../assets/logo.png";
 import { useNavigate } from "react-router-dom";
 import ThemMode from "./ThemMode";
-import axios from "axios";
 import LanguageSwitcher from "./ChangLang";
 import { useTranslation } from "react-i18next";
 import profileImage from "../../assets/profile.png";
@@ -43,7 +43,10 @@ function MuiAppbar() {
   const { t } = useTranslation();
   const [anchorElUser, setAnchorElUser] = useState<HTMLElement | null>(null);
   const [open, setOpen] = useState(false);
-  const [user, setUser] = useState<UserProfile | null>(null);
+  // Shared with the settings page through one query key, so opening
+  // settings no longer refetches what the navbar already has.
+  const { data: user } = useProfile();
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const handleOpenUserMenu = (event: MouseEvent<HTMLElement>) => {
     setAnchorElUser(event.currentTarget);
@@ -53,7 +56,7 @@ function MuiAppbar() {
     setAnchorElUser(null);
     if (page === "logOut") {
       navigate("/");
-      Cookies.remove("token");
+      void authService.logout();
     }
     if (page === "settings") {
       navigate("/settings");
@@ -76,28 +79,8 @@ function MuiAppbar() {
   };
   const handleLogOutInMobile = () => {
     navigate("/");
-    Cookies.remove("token");
+    void authService.logout();
   };
-  const fetchUser = async () => {
-    try {
-      const res = await axios.post(
-        "https://booking-bus.onrender.com/getUser/",
-        {},
-        {
-          headers: {
-            "Content-Type": "application/json",
-            authorization: `Bearer ${Cookies.get("token")}`,
-          },
-        },
-      );
-      setUser(res.data.result);
-    } catch (err) {}
-  };
-  useEffect(() => {
-    if (Cookies.get("token")) {
-      fetchUser();
-    }
-  }, []);
 
   return (
     <>
@@ -170,7 +153,7 @@ function MuiAppbar() {
             </Box>
             {
               // render user avatar if user is logged in
-              Cookies.get("token") ? (
+              isAuthenticated ? (
                 <Box sx={{ flexGrow: 0, display: ["none", "none", "flex"] }}>
                   <Tooltip title="Open settings">
                     <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
@@ -298,7 +281,7 @@ function MuiAppbar() {
             ))}
             {
               // render SignOutIcon Button if user login
-              Cookies.get("token") ? (
+              isAuthenticated ? (
                 <ListItem disablePadding onClick={() => handleLogOutInMobile()}>
                   <ListItemButton>
                     <ListItemIcon>
@@ -315,7 +298,7 @@ function MuiAppbar() {
           </List>
           {
             // render user name and image settings in mobile if user is logged in
-            Cookies.get("token") ? (
+            isAuthenticated ? (
               <Box sx={{ display: "flex", alignItems: "center", p: 2 }}>
                 <Box sx={{ flexGrow: 0 }}>
                   <Tooltip

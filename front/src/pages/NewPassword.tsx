@@ -5,7 +5,7 @@ import type { FormikErrors } from "formik";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Container from "@mui/material/Container";
-import axios from "axios";
+import { authService } from "@/services/authService";
 import { useNavigate } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
 
@@ -34,18 +34,16 @@ export const NewPassword = () => {
 
   const onSubmit = (values: FormValues) => {
     setLoading(true);
-    const data = {
-      verificationCode: values.verificationCode,
-      password: values.password,
-      verification_code: sessionStorage.getItem("verification_code"),
-      email: sessionStorage.getItem("email"),
-    };
 
-    axios
-      .post("https://booking-bus.onrender.com/newPassword", data)
+    authService
+      .resetPassword({
+        email: sessionStorage.getItem("resetEmail") ?? "",
+        password: values.password,
+        verificationCode: values.verificationCode,
+      })
       .then((res) => {
         setLoading(false);
-        setUpdate({ status: res.data.verification, message: res.data.message });
+        setUpdate({ status: res.verification, message: res.message });
       })
       .catch(() => {
         setLoading(false);

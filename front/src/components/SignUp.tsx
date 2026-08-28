@@ -13,7 +13,7 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import background from "../assets/sinin.jpg";
 import { Formik, Form } from "formik";
 import type { FormikErrors, FormikHelpers } from "formik";
-import axios from "axios";
+import { authService } from "@/services/authService";
 import { CircularProgress } from "@mui/material";
 import { useState } from "react";
 
@@ -69,15 +69,14 @@ export default function SignUp() {
   const navigate = useNavigate();
   const onSubmit = (values: FormValues, { resetForm }: FormikHelpers<FormValues>) => {
     setLoading(true);
-    axios
-      .post("https://booking-bus.onrender.com/SignUp/", values)
+    authService
+      .register(values)
       .then((res) => {
-        sessionStorage.setItem("verification_code", res.data.verification_code);
-        sessionStorage.setItem("user", JSON.stringify(res.data.user));
-        if (res.data.exist) {
+        sessionStorage.setItem("pendingEmail", values.email);
+        if (res.exist) {
           setTimeout(() => {
             setLoading(false);
-            setExist({ exist: true, message: res.data.message });
+            setExist({ exist: true, message: res.message });
             resetForm();
           }, 1000);
         } else {

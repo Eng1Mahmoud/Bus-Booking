@@ -10,8 +10,7 @@ import {
 import React from "react";
 import { Formik, Form, Field } from "formik";
 import type { FormikErrors, FormikHelpers } from "formik";
-import axios from "axios";
-import Cookies from "js-cookie";
+import { userService } from "@/services/userService";
 const initialValues = {
   password: "",
   newPassword: "",
@@ -39,20 +38,13 @@ export const ChangePassword = () => {
     { resetForm }: FormikHelpers<FormValues>,
   ) => {
     try {
-      const res = await axios.post(
-        "https://booking-bus.onrender.com/changePassword/",
-        values,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            authorization: `Bearer ${Cookies.get("token")}`,
-          },
-        },
-      );
-      resetForm();
+      setResult(await userService.changePassword(values));
       setOpen(true);
-      setResult(res.data.result);
-    } catch (err) {}
+      resetForm();
+    } catch {
+      setResult({ match: false, message: "Something went wrong" });
+      setOpen(true);
+    }
   };
 
   return (

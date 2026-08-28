@@ -7,8 +7,9 @@ import DialogTitle from "@mui/material/DialogTitle";
 import Slide from "@mui/material/Slide";
 import { Alert, Box, CircularProgress, Grid, Typography } from "@mui/material";
 import WeekendIcon from "@mui/icons-material/Weekend";
-import axios from "axios";
-import Cookies from "js-cookie";
+import { errorMessage } from "@/api/client";
+import { paymentService } from "@/services/paymentService";
+import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import Complet from "./Complet";
 import { useTranslation } from "react-i18next";
@@ -22,8 +23,6 @@ import {
 } from "react";
 import type { TransitionProps } from "@mui/material/transitions";
 import type { TripDetails } from "@/types";
-
-const API = import.meta.env.VITE_API_URL || "https://booking-bus.onrender.com";
 
 const TransitionInner = function Transition(
   props: TransitionProps & { children: ReactElement },
@@ -42,6 +41,7 @@ interface BookProps {
 
 export default function Book({ tripDetils }: BookProps) {
   const { t } = useTranslation();
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [showPide, setShowPide] = useState(false);
   const [open, setOpen] = useState(false);
@@ -51,17 +51,12 @@ export default function Book({ tripDetils }: BookProps) {
   const [busy, setBusy] = useState(false);
   const paypalRef = useRef<HTMLDivElement | null>(null);
 
-  const authHeaders = () => ({
-    "Content-Type": "application/json",
-    authorization: `Bearer ${Cookies.get("token")}`,
-  });
-
   const seatSelection = () => ({
     from: tripDetils.from,
     to: tripDetils.to,
     date: tripDetils.date,
     busNumber: tripDetils.busNumber,
-    seatNumber,
+    seatNumber: seatNumber as number,
   });
 
   /**
@@ -83,31 +78,25 @@ export default function Book({ tripDetils }: BookProps) {
     const buttons = window.paypal.Buttons({
       createOrder: async () => {
         setError("");
-        const { data } = await axios.post(
-          `${API}/api/payments/orders`,
-          seatSelection(),
-          { headers: authHeaders() },
-        );
-        createdOrderId = data.orderId;
-        return data.orderId;
+        const order = await paymentService.createOrder(seatSelection());
+        createdOrderId = order.orderId;
+        return order.orderId;
       },
 
       onApprove: async (data: { orderID: string }) => {
         setBusy(true);
         try {
-          await axios.post(
-            `${API}/api/payments/orders/${data.orderID}/capture`,
-            {},
-            { headers: authHeaders() },
-          );
+          await paymentService.captureOrder(data.orderID);
           if (cancelled) return;
           setOpen(false);
           setShowPide(false);
           setOpenComplet(true);
         } catch (err) {
           setError(
-            (axios.isAxiosError(err) && err.response?.data?.message) ||
+            errorMessage(
+              err,
               t("We could not confirm your payment. Please contact support."),
+            ),
           );
         } finally {
           setBusy(false);
@@ -118,13 +107,7 @@ export default function Book({ tripDetils }: BookProps) {
       // off sale until its ten-minute hold lapses.
       onCancel: () => {
         if (!createdOrderId) return;
-        axios
-          .post(
-            `${API}/api/payments/orders/${createdOrderId}/cancel`,
-            {},
-            { headers: authHeaders() },
-          )
-          .catch(() => {});
+        void paymentService.cancelOrder(createdOrderId).catch(() => {});
         setShowPide(false);
       },
 
@@ -152,7 +135,7 @@ export default function Book({ tripDetils }: BookProps) {
   };
 
   const bookTrip = (selectedSeat: number) => {
-    if (!Cookies.get("token")) {
+    if (!isAuthenticated) {
       navigate("/login");
       return;
     }

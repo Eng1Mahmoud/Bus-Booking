@@ -118,7 +118,7 @@ the literal `'keyboard cat'` (express-session is also unused — delete it).
 - **S14** No input validation; `req.body` values flow directly into query filters (NoSQL
   injection surface on every endpoint).
 - **S15** Plaintext password kept in `sessionStorage` (`SignUp.jsx:80`) — readable by any XSS.
-- **S16** Auth token in a JS-readable cookie via `js-cookie`, with no expiry handling.
+- ✅ FIXED (Phase 5) **S16** Auth token in a JS-readable cookie via `js-cookie`, with no expiry handling.
 
 ### Low / correctness
 
@@ -334,7 +334,7 @@ Each phase is independently shippable and leaves the app running. Estimates assu
 - `theme/` extracted from `them.js`; typed MUI theme augmentation.
 - Path aliases (`@/…`) to match the portfolio's import style.
 
-### Phase 5 — Data layer (1–2 days)
+### Phase 5 — Data layer ✅ DONE
 
 - `api/client.ts` — one axios instance; request interceptor attaches the in-memory access
   token, response interceptor refreshes once on 401 and replays. Removes 12 hardcoded URLs.

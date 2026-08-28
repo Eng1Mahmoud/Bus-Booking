@@ -16,7 +16,7 @@ import {
 } from "@mui/material";
 import { CircularProgress } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import axios from "axios";
+import { tripService } from "@/services/tripService";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "@/store";
 import { activeTrips } from "@/store/uiSlice";
@@ -86,11 +86,14 @@ const MuiForm = () => {
     const formattedDate = dayjs(values.date).format("YYYY-M-D");
     const data = { ...values, date: formattedDate };
 
-    axios.post("https://booking-bus.onrender.com/search/", data).then((res) => {
-      addTrips(res.data);
-      navigate("/trips");
-      setLoading(false);
-    });
+    tripService
+      .search(data)
+      .then((trips) => {
+        addTrips(trips);
+        navigate("/trips");
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
     resetForm();
   };
   return (

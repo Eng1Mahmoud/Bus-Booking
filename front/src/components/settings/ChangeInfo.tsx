@@ -1,9 +1,10 @@
+import { useQueryClient } from "@tanstack/react-query";
+import { userService } from "@/services/userService";
+import { queryKeys } from "@/api/queryClient";
 import { Container, TextField, Button, Grid, Box } from "@mui/material";
-import axios from "axios";
 import { Formik, Form, Field } from "formik";
 import type { FormikErrors } from "formik";
 import type { UserProfile } from "@/types";
-import Cookies from "js-cookie";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 interface FormValues {
@@ -37,6 +38,7 @@ const validate = (values: FormValues) => {
 export const ChangeInfo = ({ oldInformation }: ChangeInfoProps) => {
   const [newInformation, setNewInformation] = useState<UserProfile | null>(null);
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const initialValues: FormValues = {
     FName: newInformation?.FName ?? oldInformation.FName,
     LName: newInformation?.LName ?? oldInformation.LName,
@@ -44,17 +46,8 @@ export const ChangeInfo = ({ oldInformation }: ChangeInfoProps) => {
   };
   const handleSubmit = async (values: FormValues) => {
     try {
-      const res = await axios.post(
-        "https://booking-bus.onrender.com/updateInfo/",
-        values,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            authorization: `Bearer ${Cookies.get("token")}`,
-          },
-        },
-      );
-      setNewInformation(res.data.result);
+      setNewInformation(await userService.updateProfile(values));
+      await queryClient.invalidateQueries({ queryKey: queryKeys.profile });
     } catch {
       // Surfaced to the user in Phase 7, alongside the react-hook-form rewrite.
     }
