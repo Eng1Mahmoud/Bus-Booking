@@ -4,7 +4,7 @@ import { Formik, Form } from "formik";
 import type { FormikErrors } from "formik";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
-import axios from "axios";
+import { authService } from "@/services/authService";
 import { useNavigate } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
 import Container from "@mui/material/Container";
@@ -31,13 +31,12 @@ export const ForgetPassword = () => {
   const onSubmit = (values: FormValues) => {
     setLoading(true);
 
-    axios
-      .post("https://booking-bus.onrender.com/sendCodeVerification", values)
+    authService
+      .forgotPassword(values.email)
       .then((res) => {
-        sessionStorage.setItem("verification_code", res.data.verification_code);
-        sessionStorage.setItem("email", res.data.email);
+        sessionStorage.setItem("resetEmail", res.email);
         setLoading(false);
-        if (res.data.send) {
+        if (res.send) {
           navigate("/NewPassword");
         }
       })

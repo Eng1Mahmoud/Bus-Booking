@@ -1,8 +1,9 @@
 import { Box, Typography } from "@mui/material";
 import { useState, type ChangeEvent, type CSSProperties } from "react";
 import EditIcon from "@mui/icons-material/Edit";
-import axios from "axios";
-import Cookies from "js-cookie";
+import { useQueryClient } from "@tanstack/react-query";
+import { userService } from "@/services/userService";
+import { queryKeys } from "@/api/queryClient";
 import fixedImage from "@/assets/profile.png";
 const styleLabel: CSSProperties = {
   position: "absolute",
@@ -23,6 +24,7 @@ interface ChangeImageProps {
 
 export const ChangeImage = ({ name, oldImage }: ChangeImageProps) => {
   const [image, setImage] = useState("");
+  const queryClient = useQueryClient();
   const handleImageChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -38,18 +40,10 @@ export const ChangeImage = ({ name, oldImage }: ChangeImageProps) => {
   };
   const saveImage = async (base64Image: string) => {
     try {
-      const res = await axios.post(
-        "https://booking-bus.onrender.com/uploadImage/",
-        { image: base64Image },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            authorization: `Bearer ${Cookies.get("token")}`,
-          },
-        },
-      );
-
-      setImage(res.data.result.image);
+      const profile = await userService.updateAvatar(base64Image);
+      setImage(profile.image ?? "");
+      // Refreshes the navbar avatar too, since both read the same query.
+      await queryClient.invalidateQueries({ queryKey: queryKeys.profile });
     } catch {
       // Surfaced to the user in Phase 7.
     }

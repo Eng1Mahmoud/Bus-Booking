@@ -5,12 +5,10 @@ import { Chip, Container, Divider } from "@mui/material";
 import { ChangeImage } from "./ChangeImage";
 import { ChangePassword } from "./ChangePassword";
 import { ChangeInfo } from "./ChangeInfo";
-import axios from "axios";
-import Cookies from "js-cookie";
 import { Loading } from "../general/Loading";
 import { useTranslation } from "react-i18next";
-import { useEffect, useState, type ReactNode, type SyntheticEvent } from "react";
-import type { UserProfile } from "@/types";
+import { useState, type ReactNode, type SyntheticEvent } from "react";
+import { useProfile } from "@/hooks/useProfile";
 interface TabPanelProps {
   children?: ReactNode;
   value: number;
@@ -43,36 +41,12 @@ function a11yProps(index: number) {
   };
 }
 export default function TabsEdit() {
-  const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<UserProfile | null>(null);
+  const { data: user, isPending } = useProfile();
   const { t } = useTranslation();
-  const fetchUser = async () => {
-    try {
-      const res = await axios.post(
-        "https://booking-bus.onrender.com/getUser/",
-        {},
-        {
-          headers: {
-            "Content-Type": "application/json",
-            authorization: `Bearer ${Cookies.get("token")}`,
-          },
-        },
-      );
-      setUser(res.data.result);
-      setLoading(false);
-    } catch {
-      setLoading(false);
-    }
-  };
   const [value, setValue] = useState(0);
   const handleChange = (_event: SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
-  useEffect(() => {
-    if (Cookies.get("token")) {
-      fetchUser();
-    }
-  }, [user?.image]);
   return (
     <Container maxWidth="md">
       <Divider
@@ -89,7 +63,7 @@ export default function TabsEdit() {
           }}
         />
       </Divider>
-      {loading || !user ? (
+      {isPending || !user ? (
         <Loading />
       ) : (
         <>
