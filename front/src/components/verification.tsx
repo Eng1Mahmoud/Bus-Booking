@@ -1,69 +1,59 @@
 import { useState } from "react";
-import { Box } from "@mui/material";
-import { Formik, Form } from "formik";
-import type { FormikErrors, FormikHelpers } from "formik";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-import { authService } from "@/services/authService";
+import { Box, Button, Typography } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
-import CircularProgress from "@mui/material/CircularProgress";
 
-const initialValues = {
-  verificationCode: "",
-};
+import { Form } from "@/components/forms/Form";
+import { InputField } from "@/components/forms/InputField";
+import { verificationSchema, type VerificationValues } from "@/schemas";
+import { authService } from "@/services/authService";
 
-type FormValues = typeof initialValues;
-
-const validate = (values: FormValues) => {
-  const errors: FormikErrors<FormValues> = {};
-
-  if (!values.verificationCode) {
-    errors.verificationCode = "Please enter verification Code";
-  }
-
-  return errors;
-};
 export const Verification = () => {
-  const [loading, setLoading] = useState(false);
-  const [verificationStatus, setVerificationStatus] = useState({
-    verified: false,
-    message: "",
-  });
   const navigate = useNavigate();
-  // Set by SignUp when it redirected here. The code itself is verified
-  // server-side; only the address is needed to find the pending registration.
+  // Set by SignUp when it redirected here. The code is verified server-side;
+  // only the address is needed to find the pending registration.
   const { state } = useLocation() as { state?: { email?: string } };
+  const [verified, setVerified] = useState(false);
+  const [error, setError] = useState<string>();
 
-  const onSubmit = (values: FormValues, { resetForm }: FormikHelpers<FormValues>) => {
-    setLoading(true);
+  const onSubmit = async (values: VerificationValues) => {
+    const result = await authService.verifyEmail({
+      verificationCode: values.verificationCode,
+      email: state?.email ?? "",
+    });
 
-    authService
-      .verifyEmail({
-        verificationCode: values.verificationCode,
-        email: state?.email ?? "",
-      })
-      .then((res) => {
-        if (res.verification) {
-          setTimeout(() => {
-            setVerificationStatus({ verified: true, message: "" });
-            setLoading(false);
-            resetForm();
-          }, 1000);
-        } else {
-          setVerificationStatus({ verified: false, message: res.message });
-          setTimeout(() => {
-            setLoading(false);
-          }, 1000);
-        }
-      })
-      .catch(() => {
-        setVerificationStatus({
-          verified: false,
-          message: "Error verifying the code. Please try again.",
-        });
-        setLoading(false);
-      });
+    if (!result.verification) {
+      setError(result.message);
+      return;
+    }
+
+    setVerified(true);
   };
+
+  if (verified) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          background: "#ffffff70",
+        }}
+      >
+        <Box sx={{ textAlign: "center" }}>
+          <Typography variant="h4" gutterBottom>
+            Verification successful
+          </Typography>
+          <Typography sx={{ mb: 2 }}>
+            Your account has been created. You can sign in now.
+          </Typography>
+          <Button variant="contained" onClick={() => navigate("/login")}>
+            Go to sign in
+          </Button>
+        </Box>
+      </Box>
+    );
+  }
 
   return (
     <Box
@@ -75,60 +65,22 @@ export const Verification = () => {
         background: "#ffffff70",
       }}
     >
-      <Box>
-        {!verificationStatus.verified ? (
-          <Formik initialValues={initialValues} onSubmit={onSubmit} validate={validate}>
-            {({ values, errors, touched, handleChange, handleBlur }) => (
-              <Form>
-                <TextField
-                  fullWidth
-                  id="verificationCode"
-                  label=" verification Code"
-                  name="verificationCode"
-                  value={values.verificationCode}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  error={
-                    touched.verificationCode && errors.verificationCode ? true : false
-                  }
-                  helperText={
-                    touched.verificationCode && errors.verificationCode
-                      ? errors.verificationCode
-                      : ""
-                  }
-                />
-                <Button
-                  type="submit"
-                  fullWidth
-                  variant="contained"
-                  sx={{ my: 2 }}
-                  disabled={loading}
-                  startIcon={loading && <CircularProgress size={20} />}
-                >
-                  Verify Email
-                </Button>
-              </Form>
-            )}
-          </Formik>
-        ) : (
-          <Box>
-            <h1>Verification successful!</h1>
-            <p>Congratulations! Your account has been verified.</p>
-            <Button
-              variant="contained"
-              sx={{ marginTop: "10px" }}
-              onClick={() => navigate("/login")}
-            >
-              Return to Login Page
-            </Button>
-          </Box>
-        )}
-        {verificationStatus.message && (
-          <Box>
-            <h1>Verification failed!</h1>
-          </Box>
-        )}
+      <Box sx={{ width: 360, maxWidth: "90vw" }}>
+        <Typography variant="h5" sx={{ mb: 2, textAlign: "center" }}>
+          Enter the code we emailed you
+        </Typography>
+        <Form
+          schema={verificationSchema}
+          defaultValues={{ verificationCode: "" }}
+          onSubmit={onSubmit}
+          submitLabel="Verify Email"
+          error={error}
+        >
+          <InputField name="verificationCode" label="Verification code" autoFocus />
+        </Form>
       </Box>
     </Box>
   );
 };
+
+export default Verification;

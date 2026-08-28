@@ -1,110 +1,49 @@
-import type { Trip } from "@/types";
-import dayjs, { type Dayjs } from "dayjs";
-import { Formik, Form, Field } from "formik";
-import type { FormikErrors, FormikHelpers } from "formik";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import dayjs from "dayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import {
-  MenuItem,
-  Grid,
-  Paper,
-  Typography,
-  Button,
-  Stack,
-  Select as MuiSelect,
-} from "@mui/material";
-import { CircularProgress } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import { tripService } from "@/services/tripService";
+import { Grid, Paper, Stack, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+
+import { Form } from "@/components/forms/Form";
+import { SelectField } from "@/components/forms/SelectField";
+import { DateField } from "@/components/forms/DateField";
+import { searchSchema, type SearchValues } from "@/schemas";
+import { STATIONS } from "@/constants/stations";
+import { tripService } from "@/services/tripService";
 import { useAppDispatch } from "@/store";
 import { activeTrips } from "@/store/uiSlice";
-import { useTranslation } from "react-i18next";
-import { useState } from "react";
-const StyledField = styled(Field)`
-  .MuiFormLabel-root {
-    color: "text.main";
-    text-align: left;
-  }
-  .MuiSelect-select {
-    color: "text.main";
-  }
-`;
-const initialValues = {
-  from: "",
-  to: "",
-  date: dayjs(),
-};
-
-type FormValues = typeof initialValues;
-
-const validate = () => {
-  const errors: FormikErrors<FormValues> = {};
-  return errors;
-};
-
-const countries = [
-  { name: "Hurghada", title: true },
-  { name: "El Nasr Street", title: false },
-  { name: "Watanya-HRG", title: false },
-  { name: "Al Ahyaa", title: false },
-  { name: "Giza/Cairo", title: true },
-  { name: "6 October - El Hussary", title: false },
-  { name: "Ramsis", title: false },
-  { name: "Alexandria", title: true },
-  { name: "Sidi Gaber", title: false },
-  { name: "Moharam Bek", title: false },
-  { name: "Dahab", title: true },
-  { name: "Dahab", title: false },
-  { name: "Sohag", title: true },
-  { name: "Dar ElTeb", title: false },
-  { name: "El Ray", title: false },
-  { name: "Sharm El Sheikh", title: true },
-  { name: "Watanya-SSH", title: false },
-  { name: "El Ruwaysat", title: false },
-  { name: "Luxor", title: true },
-  { name: "Railway station", title: false },
-  { name: "Armant", title: false },
-  { name: "Qena", title: true },
-  { name: "Qift", title: false },
-  { name: "Qena ", title: false },
-  { name: "Asyout", title: true },
-  { name: "Elmoalmien", title: false },
-  { name: "ELHILALEY", title: false },
-];
 
 const MuiForm = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const [loading, setLoading] = useState(false);
-  const today = dayjs();
-  const addTrips = (trips: Trip[]) => dispatch(activeTrips(trips));
-  const onSubmit = (values: FormValues, { resetForm }: FormikHelpers<FormValues>) => {
-    setLoading(true);
-    const formattedDate = dayjs(values.date).format("YYYY-M-D");
-    const data = { ...values, date: formattedDate };
 
-    tripService
-      .search(data)
-      .then((trips) => {
-        addTrips(trips);
-        navigate("/trips");
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-    resetForm();
+  const options = STATIONS.map((station) => ({
+    value: station.name,
+    label: t(station.name),
+    disabled: station.isCity,
+  }));
+
+  const onSubmit = async (values: SearchValues) => {
+    // `YYYY-M-D` with no zero padding is what the API stores and compares
+    // against; a padded date silently matches nothing.
+    const trips = await tripService.search({
+      from: values.from,
+      to: values.to,
+      date: dayjs(values.date).format("YYYY-M-D"),
+    });
+
+    dispatch(activeTrips(trips));
+    navigate("/trips");
   };
+
   return (
     <Stack
       spacing={2}
       sx={{
         position: "absolute",
-        top: "0px",
-        left: "0%",
-        right: "0px",
-        bottom: "0px",
+        inset: 0,
         zIndex: 1,
         justifyContent: "center",
         alignItems: "center",
@@ -121,6 +60,7 @@ const MuiForm = () => {
       >
         {t("Start Booking Your Trip")}
       </Typography>
+
       <Paper
         elevation={10}
         sx={{
@@ -129,143 +69,29 @@ const MuiForm = () => {
           padding: "20px",
           borderRadius: "20px",
           backgroundColor: ["transparent", "transparent", "background.main"],
-          "@media (max-width: 600px)": {
-            width: "100%",
-            padding: "5px",
-          },
+          "@media (max-width: 600px)": { width: "100%", padding: "5px" },
         }}
       >
-        <Formik initialValues={initialValues} onSubmit={onSubmit} validate={validate}>
-          {({ setFieldValue, errors, touched, values, handleChange }) => (
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <Form>
-                <Grid
-                  container
-                  spacing={2}
-                  sx={{ p: 3, justifyContent: "center", alignItems: "end" }}
-                >
-                  <Grid size={{ xs: 12, md: 3 }}>
-                    <Paper
-                      elevation={10}
-                      sx={{
-                        backgroundColor: [
-                          "background.main",
-                          "background.main",
-                          "transparent",
-                        ],
-                        padding: "10px",
-                      }}
-                    >
-                      <MuiSelect
-                        fullWidth
-                        id="from"
-                        name="from"
-                        value={values.from}
-                        onChange={handleChange}
-                        label={t("From")}
-                      >
-                        {countries.map((city, i) => {
-                          return (
-                            <MenuItem
-                              key={city.name + i}
-                              value={city.name}
-                              disabled={city.title}
-                              sx={{ minWidth: "300px" }}
-                            >
-                              {t(city.name)}
-                            </MenuItem>
-                          );
-                        })}
-                      </MuiSelect>
-                    </Paper>
-                  </Grid>
-                  <Grid size={{ xs: 12, md: 3 }}>
-                    <Paper
-                      elevation={10}
-                      sx={{
-                        backgroundColor: [
-                          "background.main",
-                          "background.main",
-                          "transparent",
-                        ],
-                        padding: "10px",
-                      }}
-                    >
-                      <MuiSelect
-                        fullWidth
-                        id="to"
-                        name="to"
-                        value={values.to}
-                        onChange={handleChange}
-                        label={t("To")}
-                      >
-                        {countries.map((city, i) => {
-                          return (
-                            <MenuItem
-                              key={city.name + i}
-                              value={city.name}
-                              disabled={city.title}
-                              sx={{ minWidth: "300px" }}
-                            >
-                              {t(city.name)}
-                            </MenuItem>
-                          );
-                        })}
-                      </MuiSelect>
-                    </Paper>
-                  </Grid>
-                  <Grid size={{ xs: 12, md: 3 }}>
-                    <Paper
-                      elevation={10}
-                      sx={{
-                        backgroundColor: [
-                          "background.main",
-                          "background.main",
-                          "transparent",
-                        ],
-                        padding: "10px",
-                      }}
-                    >
-                      <StyledField
-                        fullWidth
-                        name="date"
-                        as={DatePicker}
-                        label={t("Date of Travel")}
-                        value={values.date}
-                        minDate={today}
-                        onChange={(newDate: Dayjs | null) =>
-                          setFieldValue("date", newDate)
-                        }
-                        slotProps={{
-                          textField: {
-                            fullWidth: true,
-                            error: Boolean(errors.date && touched.date),
-                            helperText: errors.date as string | undefined,
-                          },
-                        }}
-                      />
-                    </Paper>
-                  </Grid>
-                  <Grid size={{ xs: 12, md: 3 }}>
-                    <Button
-                      variant="contained"
-                      size="large"
-                      type="submit"
-                      startIcon={loading && <CircularProgress size={20} />}
-                      sx={{
-                        fontSize: "25px",
-                        color: "text.therd",
-                        backgroundColor: "background.therd",
-                      }}
-                    >
-                      {t("Search")}{" "}
-                    </Button>
-                  </Grid>
-                </Grid>
-              </Form>
-            </LocalizationProvider>
-          )}
-        </Formik>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <Form
+            schema={searchSchema}
+            defaultValues={{ from: "", to: "", date: dayjs() }}
+            onSubmit={onSubmit}
+            submitLabel={t("Search")}
+          >
+            <Grid container spacing={2} sx={{ px: 2, alignItems: "start" }}>
+              <Grid size={{ xs: 12, md: 4 }}>
+                <SelectField name="from" label={t("From")} options={options} />
+              </Grid>
+              <Grid size={{ xs: 12, md: 4 }}>
+                <SelectField name="to" label={t("To")} options={options} />
+              </Grid>
+              <Grid size={{ xs: 12, md: 4 }}>
+                <DateField name="date" label={t("Date of Travel")} />
+              </Grid>
+            </Grid>
+          </Form>
+        </LocalizationProvider>
       </Paper>
     </Stack>
   );

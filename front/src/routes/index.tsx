@@ -9,6 +9,7 @@ import { NewPassword } from "@/pages/NewPassword";
 import NotFound from "@/pages/NotFound";
 import { FallbackLoading } from "@/components/general/FallbackLoading";
 import { GuestRoute, ProtectedRoute } from "./guards";
+import { ErrorBoundary } from "@/components/general/ErrorBoundary";
 
 const Home = lazy(() => import("@/pages/HomePage"));
 const AboutPage = lazy(() => import("@/pages/AboutPage"));
@@ -26,6 +27,7 @@ export const router = createBrowserRouter([
   {
     path: "/",
     element: <Root />,
+    errorElement: <ErrorBoundary />,
     children: [
       { index: true, element: deferred(<Home />) },
       { path: "faqs", element: deferred(<FaqPage />) },

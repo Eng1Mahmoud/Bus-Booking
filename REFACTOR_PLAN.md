@@ -350,7 +350,7 @@ Each phase is independently shippable and leaves the app running. Estimates assu
 - Delete every `sessionStorage` write — especially the plaintext password. Fixes S15.
 - Logout calls the API so the refresh token is actually revoked.
 
-### Phase 7 — Forms & features (2–3 days)
+### Phase 7 — Forms & features ✅ DONE
 
 - `components/forms/` primitives: `Form` (RHF + `zodResolver` + a `useFormStatus` submit
   button), `InputField`, `SelectField`, `DateField` — the portfolio's exact pattern, rendered
