@@ -37,7 +37,16 @@ export interface BookingHistoryEntry {
 
 export interface Seat {
   seatNumber: number;
+  /**
+   * True means unavailable — held for a checkout in progress, or sold.
+   *
+   * Kept boolean because the frontend renders `seat.status` directly. The two
+   * unavailable states are told apart by `heldUntil`: set while a checkout is
+   * running, cleared once payment is captured.
+   */
   status: boolean;
+  /** When a pending hold lapses. Absent on free and on sold seats. */
+  heldUntil?: Date | null;
 }
 
 export interface Bus {

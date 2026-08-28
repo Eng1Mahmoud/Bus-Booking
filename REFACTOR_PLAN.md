@@ -49,7 +49,7 @@ Ordered by severity.
 
 > **Status.** S1, S2, S4, S5, S6, S7 are **fixed in Phase 2**, with regression
 > tests in `back/src/__tests__/auth.security.test.ts`. S8–S10 and S13–S14, S17–S19
-> were fixed in Phase 1. S3 and S11 remain and are Phase 3. S15–S16 are the
+> were fixed in Phase 1. S3 and S11 are **fixed in Phase 3**. S15–S16 are the
 > frontend half and are Phase 6. Findings below are kept as written so the
 > before/after is legible.
 
@@ -76,7 +76,7 @@ resets any account. **This is the single most urgent fix in the repo.**
 then trusts the client's code and saves `req.body.user` — so the attacker controls every
 field of the user document, and can register any email address without owning it.
 
-**S3 — Payment can be skipped entirely.**
+✅ FIXED (Phase 3) **S3 — Payment can be skipped entirely.**
 `front/src/components/Trips/Book.jsx:29` posts the booking from the browser _after_
 client-side PayPal approval, and includes `seatePrice` from the client.
 `back/controlar/book.mjs` never contacts PayPal. Calling `/book` directly with a valid login
@@ -108,7 +108,7 @@ the literal `'keyboard cat'` (express-session is also unused — delete it).
 
 ### Medium
 
-- **S11** Seat double-booking race: `book.mjs` sets `status: true` without asserting it was
+- ✅ FIXED (Phase 3) **S11** Seat double-booking race: `book.mjs` sets `status: true` without asserting it was
   `false`. Two concurrent requests both succeed. The response is also sent _before_ the user
   history write, whose `.catch` then calls `res.status(500)` on an already-sent response →
   `ERR_HTTP_HEADERS_SENT` crash.

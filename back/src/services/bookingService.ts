@@ -1,70 +1,138 @@
-import { Trip } from "../models/Trip.js";
+import crypto from "node:crypto";
+import { Trip, type TripDocument } from "../models/Trip.js";
+import { Booking, type BookingDocument } from "../models/Booking.js";
 import { User } from "../models/User.js";
 import { ApiError } from "../utils/ApiError.js";
 import { logger } from "../utils/logger.js";
-import type { CreateBookingInput } from "../validation/bookingSchemas.js";
+import { claimSeat, freeSeat, releaseLapsedHolds, sellSeat } from "./seatStore.js";
+import type { SeatSelection } from "../validation/bookingSchemas.js";
+
+/** How long a seat is held while the customer is in PayPal's checkout. */
+export const HOLD_MINUTES = 10;
+
+const reference = (): string =>
+  `TZK-${crypto.randomBytes(5).toString("hex").toUpperCase()}`;
 
 export const bookingService = {
   /**
-   * Reserves a seat and appends it to the caller's booking history.
+   * Frees seats whose hold lapsed without a payment.
    *
-   * TODO(S3) — no payment is verified and `seatePrice` is whatever the client
-   * sent. Phase 3 rebuilds this around a captured PayPal order.
-   *
-   * TODO(S11) — the seat filter still does not assert `status: false`, so two
-   * concurrent requests can both claim the same seat. Fixing it properly means
-   * returning a 409 to the loser, which the current frontend has no handling
-   * for; it lands in Phase 3 alongside the payment rewrite.
-   *
-   * What *is* fixed here: the original responded to the client before writing
-   * the booking history, then called `res.status(500)` from that write's error
-   * path — on an already-sent response, crashing the process with
-   * ERR_HTTP_HEADERS_SENT. Both writes are now awaited before responding.
+   * Called before every hold attempt, so an abandoned checkout never takes a
+   * seat off sale permanently. Booking rows are marked `expired` rather than
+   * deleted, so an abandoned checkout stays auditable.
    */
-  async create(email: string, input: CreateBookingInput) {
-    const { from, to, date, busNumber, seatNumber, seatePrice } = input;
+  async releaseExpiredHolds(): Promise<void> {
+    const now = new Date();
 
-    const result = await Trip.updateOne(
-      {
-        from,
-        to,
-        date,
-        "bus.number": busNumber,
-        "bus.seats": { $elemMatch: { seatNumber } },
-      },
-      { $set: { "bus.$[bus].seats.$[seat].status": true } },
-      {
-        arrayFilters: [{ "bus.number": busNumber }, { "seat.seatNumber": seatNumber }],
-      },
+    await releaseLapsedHolds(now);
+    await Booking.updateMany(
+      { status: "pending", expiresAt: { $lt: now } },
+      { status: "expired" },
     ).exec();
+  },
 
-    if (result.matchedCount === 0) {
-      throw ApiError.notFound("Trip or seat not found");
-    }
+  /** Locates the trip and the bus, and reads the authoritative seat price. */
+  async resolveSeat({ from, to, date, busNumber, seatNumber }: SeatSelection) {
+    const trip = await Trip.findOne({ from, to, date }).exec();
+    if (!trip) throw ApiError.notFound("Trip not found");
 
-    const historyUpdate = await User.updateOne(
-      { email },
-      {
-        $push: {
-          bookingsHistory: {
-            from,
-            to,
-            date,
-            busNumber: Number(busNumber),
-            seatNumber,
-            seatPrice: seatePrice,
+    const bus = trip.bus.find((entry) => String(entry.number) === busNumber);
+    if (!bus) throw ApiError.notFound("Bus not found on this trip");
+
+    const seat = bus.seats.find((entry) => entry.seatNumber === seatNumber);
+    if (!seat) throw ApiError.notFound("Seat not found on this bus");
+
+    return { trip, bus, seat, price: bus.price };
+  },
+
+  /**
+   * Claims a seat, atomically. Fixes S11.
+   *
+   * The atomicity lives in `seatStore.claimSeat`; see the note there on why
+   * these writes bypass the mongoose model. Two concurrent callers both reach
+   * it, MongoDB applies one, and the loser gets `false` and a 409. The original
+   * set `status: true` unconditionally, so both were told they had the seat.
+   */
+  holdSeat: claimSeat,
+
+  /** Puts a seat back on sale after a failed or abandoned checkout. */
+  releaseSeat: freeSeat,
+
+  /** Converts a hold into a sale: the seat stays taken, with no expiry. */
+  confirmSeat: sellSeat,
+
+  async createPending(params: {
+    userId?: string;
+    channel?: "online" | "counter";
+    userEmail: string;
+    trip: TripDocument;
+    busNumber: string;
+    seatNumber: number;
+    priceEGP: number;
+    amountCharged: number;
+    currency: string;
+    expiresAt: Date;
+  }): Promise<BookingDocument> {
+    return Booking.create({
+      user: params.userId,
+      channel: params.channel ?? "online",
+      userEmail: params.userEmail,
+      trip: params.trip._id,
+      from: params.trip.from,
+      to: params.trip.to,
+      date: params.trip.date,
+      busNumber: params.busNumber,
+      seatNumber: params.seatNumber,
+      priceEGP: params.priceEGP,
+      amountCharged: params.amountCharged,
+      currency: params.currency,
+      status: "pending",
+      reference: reference(),
+      expiresAt: params.expiresAt,
+    });
+  },
+
+  /**
+   * Mirrors a paid booking onto the user document.
+   *
+   * `bookingsHistory` is what the settings page renders, so it is kept in step.
+   * The Booking collection is the record of truth; this is a denormalised copy
+   * and a failure here must not undo a captured payment, hence the log rather
+   * than a throw.
+   */
+  async appendToHistory(booking: BookingDocument): Promise<void> {
+    // Counter sales have no account to mirror onto.
+    if (!booking.user) return;
+
+    try {
+      await User.updateOne(
+        { _id: booking.user },
+        {
+          $push: {
+            bookingsHistory: {
+              from: booking.from,
+              to: booking.to,
+              date: booking.date,
+              busNumber: Number(booking.busNumber),
+              seatNumber: booking.seatNumber,
+              seatPrice: booking.priceEGP,
+              serialBook: booking.reference,
+            },
           },
         },
-      },
-    ).exec();
-
-    if (historyUpdate.matchedCount === 0) {
-      // The seat is taken but no history row was written. Surfaced loudly
-      // because it leaves the two collections inconsistent — Phase 3's
-      // Booking model removes this split entirely.
-      logger.error({ email }, "Seat reserved but user not found for history");
+      ).exec();
+    } catch (error) {
+      logger.error(
+        { err: error, reference: booking.reference },
+        "Paid booking could not be mirrored onto the user document",
+      );
     }
+  },
 
-    return { message: "Booked successfully", result } as const;
+  async listForUser(userId: string): Promise<BookingDocument[]> {
+    return Booking.find({ user: userId, status: "paid" })
+      .sort({ createdAt: -1 })
+      .lean<BookingDocument[]>()
+      .exec();
   },
 };

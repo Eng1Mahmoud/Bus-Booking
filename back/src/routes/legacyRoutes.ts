@@ -23,7 +23,7 @@ import {
   uploadAvatarSchema,
 } from "../validation/userSchemas.js";
 import { searchTripsSchema } from "../validation/tripSchemas.js";
-import { createBookingSchema } from "../validation/bookingSchemas.js";
+import { seatSelectionSchema } from "../validation/bookingSchemas.js";
 import {
   addAdminSchema,
   addTripSchema,
@@ -118,13 +118,24 @@ router.delete(
 
 // --- Trips & bookings ------------------------------------------------------
 router.post("/search", validate({ body: searchTripsSchema }), tripController.search);
-router.post(
-  "/book",
-  bookingLimiter,
-  protect,
-  validate({ body: createBookingSchema }),
-  bookingController.create,
-);
+/**
+ * RETIRED. This is the endpoint that gave away free tickets.
+ *
+ * It accepted `seatePrice` from the browser and marked a seat sold without ever
+ * contacting PayPal, so anyone with a login could book any seat at any price —
+ * or none. There is no backward-compatible way to keep it: the flaw *is* the
+ * contract. Callers must use POST /api/payments/orders, then capture.
+ *
+ * 410 rather than 404 so an old cached bundle produces a message a user can
+ * act on ("refresh the page") instead of a silent failure.
+ */
+router.post("/book", (_req, res) => {
+  res.status(410).json({
+    message:
+      "This booking endpoint has been retired. Please refresh the page to load the latest version of the app.",
+    replacedBy: "POST /api/payments/orders",
+  });
+});
 
 // --- Admin -----------------------------------------------------------------
 router.post(
@@ -163,13 +174,15 @@ router.delete(
   validate({ params: deleteTripParamsSchema }),
   adminController.deleteTripBus,
 );
+// Counter sale. Same handler as POST /api/admin/bookings; the price is read
+// from the trip, not from the request.
 router.post(
   "/admin/book",
   bookingLimiter,
   protect,
   requireAdmin,
-  validate({ body: createBookingSchema }),
-  bookingController.create,
+  validate({ body: seatSelectionSchema }),
+  bookingController.createByAdmin,
 );
 
 export default router;

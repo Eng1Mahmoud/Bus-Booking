@@ -2,20 +2,28 @@ import { z } from "zod";
 import { tripDateSchema } from "./tripSchemas.js";
 
 /**
- * TODO(S3) — CRITICAL. `seatePrice` is accepted from the client and written
- * straight to the booking history, and nothing here verifies that a payment
- * ever happened. Phase 3 replaces this endpoint with a PayPal
- * create-order / capture pair that reads the price from the trip document.
+ * Identifies a seat. Note what is *not* here: a price.
  *
- * The misspelling is preserved because Book.jsx:36 sends that exact key.
+ * The old booking endpoint took `seatePrice` from the request body and wrote it
+ * straight to the user's history, so a caller named their own fare — and since
+ * nothing verified a payment either, they could skip paying entirely. The price
+ * is now read from the trip document at order time and the client is never
+ * asked for it.
  */
-export const createBookingSchema = z.object({
+export const seatSelectionSchema = z.object({
   from: z.string().trim().min(1).max(100),
   to: z.string().trim().min(1).max(100),
   date: tripDateSchema,
   busNumber: z.union([z.string(), z.number()]).transform(String),
   seatNumber: z.coerce.number().int().positive(),
-  seatePrice: z.coerce.number().nonnegative(),
 });
 
-export type CreateBookingInput = z.infer<typeof createBookingSchema>;
+export const paypalOrderIdSchema = z.object({
+  orderId: z
+    .string()
+    .trim()
+    .regex(/^[A-Z0-9]{5,32}$/i, "Invalid order id"),
+});
+
+export type SeatSelection = z.infer<typeof seatSelectionSchema>;
+export type PaypalOrderIdParams = z.infer<typeof paypalOrderIdSchema>;
