@@ -10,7 +10,7 @@ import {
   Typography,
   CircularProgress,
 } from "@mui/material";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import background from "../assets/sinin.jpg";
@@ -59,6 +59,8 @@ const theme = createTheme();
 
 export default function SignIn() {
   const navigate = useNavigate();
+  // ProtectedRoute records the page that bounced them here.
+  const { state } = useLocation() as { state?: { from?: string } };
   const [loading, setLoading] = useState(false);
   const [exist, setExist] = useState<{ exist: boolean | null; message: string }>({
     exist: null,
@@ -73,7 +75,7 @@ export default function SignIn() {
           setTimeout(() => {
             setLoading(false);
             resetForm();
-            navigate("/");
+            navigate(state?.from ?? "/", { replace: true });
           }, 1000);
         } else {
           setTimeout(() => {

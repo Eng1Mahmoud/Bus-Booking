@@ -10,6 +10,7 @@ import "./i18n";
 import { router } from "@/routes";
 import { store } from "@/store";
 import { queryClient } from "@/api/queryClient";
+import { AuthProvider } from "@/auth/AuthProvider";
 
 const container = document.getElementById("root");
 
@@ -21,7 +22,9 @@ createRoot(container).render(
   <StrictMode>
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
+        <AuthProvider>
+          <RouterProvider router={router} />
+        </AuthProvider>
       </QueryClientProvider>
     </Provider>
   </StrictMode>,

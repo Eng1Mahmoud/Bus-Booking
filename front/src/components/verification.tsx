@@ -5,7 +5,7 @@ import type { FormikErrors, FormikHelpers } from "formik";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import { authService } from "@/services/authService";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
 
 const initialValues = {
@@ -30,6 +30,9 @@ export const Verification = () => {
     message: "",
   });
   const navigate = useNavigate();
+  // Set by SignUp when it redirected here. The code itself is verified
+  // server-side; only the address is needed to find the pending registration.
+  const { state } = useLocation() as { state?: { email?: string } };
 
   const onSubmit = (values: FormValues, { resetForm }: FormikHelpers<FormValues>) => {
     setLoading(true);
@@ -37,9 +40,7 @@ export const Verification = () => {
     authService
       .verifyEmail({
         verificationCode: values.verificationCode,
-        // Set by SignUp. The code itself is checked server-side; only the
-        // address is needed to find the pending registration.
-        email: sessionStorage.getItem("pendingEmail") ?? "",
+        email: state?.email ?? "",
       })
       .then((res) => {
         if (res.verification) {

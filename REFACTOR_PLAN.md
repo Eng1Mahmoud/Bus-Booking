@@ -117,7 +117,7 @@ the literal `'keyboard cat'` (express-session is also unused — delete it).
   into Mongo — trivial DoS and unbounded document growth.
 - **S14** No input validation; `req.body` values flow directly into query filters (NoSQL
   injection surface on every endpoint).
-- **S15** Plaintext password kept in `sessionStorage` (`SignUp.jsx:80`) — readable by any XSS.
+- ✅ FIXED (Phase 6) **S15** Plaintext password kept in `sessionStorage` (`SignUp.jsx:80`) — readable by any XSS.
 - ✅ FIXED (Phase 5) **S16** Auth token in a JS-readable cookie via `js-cookie`, with no expiry handling.
 
 ### Low / correctness
@@ -343,7 +343,7 @@ Each phase is independently shippable and leaves the app running. Estimates assu
 - TanStack Query for trips/profile/bookings; `store/` shrinks to `authSlice` + `uiSlice`.
 - Drop `redux-persist` for server data; keep `localStorage` for theme/lang only.
 
-### Phase 6 — Auth & routing (1 day)
+### Phase 6 — Auth & routing ✅ DONE
 
 - `AuthProvider` holds the access token **in memory only**; refreshes on mount and on 401.
 - `ProtectedRoute` / `GuestRoute` wrappers; `/settings` stops rendering for anonymous users.

@@ -6,7 +6,7 @@ import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Container from "@mui/material/Container";
 import { authService } from "@/services/authService";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
 
 const initialValues = {
@@ -31,13 +31,14 @@ export const NewPassword = () => {
   const [loading, setLoading] = useState(false);
   const [update, setUpdate] = useState({ status: false, message: "" });
   const navigate = useNavigate();
+  const { state } = useLocation() as { state?: { email?: string } };
 
   const onSubmit = (values: FormValues) => {
     setLoading(true);
 
     authService
       .resetPassword({
-        email: sessionStorage.getItem("resetEmail") ?? "",
+        email: state?.email ?? "",
         password: values.password,
         verificationCode: values.verificationCode,
       })
