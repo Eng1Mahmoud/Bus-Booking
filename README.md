@@ -1,89 +1,126 @@
-# Bus Booking System
+# Tazkarty — Bus Booking
 
-**Bus Booking System** is a web application developed using the MERN stack (MongoDB, Express, React, Node.js) that allows users to book bus tickets. The system includes features for searching buses, viewing schedules, and making bookings.
+Book bus tickets across Egypt: search routes, pick a seat, pay online.
 
-## 🚀 Live Demo
-Explore the live demo here: [Bus Booking App](https://bus-booking.vercel.app/)
+A graduation project, refactored from the ground up. The plan, the reasoning
+behind each decision, and the twenty security findings that drove it are in
+[REFACTOR_PLAN.md](REFACTOR_PLAN.md); the API surface is in
+[docs/api.md](docs/api.md).
 
-## ✨ Features
-- **Search Available Buses**: Find buses based on destination, date, and time.
-- **Bus Schedule**: View available routes, departure and arrival times.
-- **User Authentication**: Login and registration features to manage bookings.
-- **Ticket Booking**: Securely book tickets for your desired trip.
-- **Responsive UI**: Built with Material UI and styled-components for a modern, mobile-friendly interface.
-- **Localization Support**: Available in multiple languages using i18next.
-- **Admin Panel**: Manage bus schedules, routes, and user bookings.
+---
 
-## 🛠️ Technologies Used
-### Frontend:
-- **React (18.2.0)**: React for building dynamic, single-page applications.
-- **Redux (8.0.5)**: State management for handling global application state.
-- **MUI (5.11.8)**: Material UI for a responsive and clean design.
-- **React Router (6.8.1)**: Handles navigation between different views.
-- **Formik & Formik-MUI**: Simplified form management and validation.
-- **Swiper (9.0.4)**: Used for carousel functionality, displaying bus schedules.
-- **Framer Motion**: Smooth animations for UI transitions.
+## Stack
 
-### Backend:
-- **Node.js & Express (4.18.2)**: Backend server to handle routing and API requests.
-- **MongoDB (Mongoose)**: NoSQL database for storing user information, bookings, and bus schedules.
-- **JWT (JSON Web Tokens)**: Authentication and authorization of users.
-- **Bcrypt**: Used for hashing passwords for secure user authentication.
-- **Nodemailer**: For sending confirmation emails upon successful bookings.
-- **Cors**: Cross-Origin Resource Sharing middleware for secure API communication.
+|              |                                                                                   |
+| ------------ | --------------------------------------------------------------------------------- |
+| **API**      | Node 20 · Express 4 · TypeScript · MongoDB (Mongoose) · zod · Vitest              |
+| **Web**      | React 19 · TypeScript · Vite 8 · MUI 9 · TanStack Query · react-hook-form + zod   |
+| **Auth**     | Short-lived access token in memory · rotating refresh token in an httpOnly cookie |
+| **Payments** | PayPal Orders v2, created and captured **server-side**                            |
 
-## ⚙️ Installation 
+Structure mirrors the sibling portfolio project: `routes → controllers →
+services → models` on the API, and `api/ → services/ → hooks/ → components/`
+on the web side.
 
-To set up the project locally, follow these steps:
+---
 
-### Prerequisites
+## Running it
 
-Make sure you have the following installed:
-- **Node.js** (version 14 or higher)
-- **npm** (Node package manager)
-- **MongoDB** (for database)
-
-### Step 1: Clone the Repository
-
-Clone the repository to your local machine:
+Requires Node 20.11 or newer and a MongoDB database (Atlas or local).
 
 ```bash
-git clone https://github.com/Eng1Mahmoud/Bus-Booking.git
-cd Bus-Booking
+npm run install:all
 ```
-## 🤝 Contributing
 
-We welcome contributions! Please follow these steps:
+Then create the two env files. **Neither belongs in git.**
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+```bash
+cp back/.env.example back/.env
+cp front/.env.example front/.env.local
+```
 
-## 📜 Commit Guidelines
+`back/.env` needs three values before the API will start — it validates its
+whole environment at boot and exits with a list of what is missing rather than
+failing later on the first request that needs it:
 
-We follow conventional commits specification:
+| Variable             | Where it comes from                                           |
+| -------------------- | ------------------------------------------------------------- |
+| `MONGO_URI`          | Atlas → Connect → Drivers. Must keep the `MONGO_URI=` prefix. |
+| `JWT_ACCESS_SECRET`  | generate, below                                               |
+| `JWT_REFRESH_SECRET` | generate, below — **a different value**                       |
 
-- `feat:` New features
-- `fix:` Bug fixes
-- `docs:` Documentation changes
-- `style:` Code style changes
-- `refactor:` Code refactoring
-- `test:` Test updates
-- `chore:` Build process or auxiliary tool changes
+```bash
+node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"
+```
 
-## 🐛 Bug Reports
+Run it twice. Reusing one secret for both means a stolen access token can be
+replayed as a refresh token.
 
-If you discover any bugs, please create an issue [here](https://github.com/Eng1Mahmoud/Bus-Booking) including:
+Everything else is optional and degrades cleanly: without `MAIL_SENDER` /
+`MAIL_PASSWORD` verification emails are logged instead of sent, and without
+`PAYPAL_CLIENT_ID` / `PAYPAL_CLIENT_SECRET` the payment endpoints return a
+clear 503.
 
-1. Bug description
-2. Steps to reproduce
-3. Expected behavior
-4. Actual behavior
-5. Screenshots (if applicable)
+```bash
+npm run dev:back    # http://localhost:5000
+npm run dev:front   # http://localhost:3000
+```
 
-## 👨‍💻 Author
+The dev server proxies `/api` to the API, so the two are same-origin in
+development and CORS never applies. `front/.env.local` can leave
+`VITE_API_URL` empty because of that.
 
-**Mahmoud Mohamed**
-- GitHub: [@Eng1Mahmoud](https://github.com/Eng1Mahmoud)
+Check it came up: `curl http://localhost:5000/api/health`
+
+---
+
+## Tests
+
+```bash
+npm --prefix back test     # API, against an in-memory MongoDB
+npm --prefix front test    # components and schemas
+```
+
+The API suite is mostly regression tests for the security findings — that a
+password reset cannot be forged, that a user token cannot reach an admin route,
+that a booking without a captured payment is refused, and that two simultaneous
+requests for one seat produce one success and one 409.
+
+---
+
+## Deploying
+
+**API (Render).** Build `npm install && npm run build`, start `npm start`. Set
+every variable from `back/.env.example`, and `ALLOWED_ORIGINS` to the web app's
+real origin — the CORS allowlist is not a wildcard.
+
+Run once, after the first deploy:
+
+```bash
+npm run migrate:admins
+```
+
+Admin passwords were stored in plaintext. This hashes them. Nobody is locked
+out if it is skipped — login upgrades a row on the way through — but it should
+not be skipped.
+
+**Web (Vercel).** Build `npm run build`, output `build`. Set `VITE_API_URL` to
+the API's origin (no trailing slash, no `/api`) and `VITE_PAYPAL_CLIENT_ID` to
+the public PayPal client id. Both are read at build time, so a change needs a
+redeploy.
+
+---
+
+## Contributing
+
+Conventional commits, enforced by commitlint. Prettier runs on staged files
+through a pre-commit hook. CI runs typecheck, tests and build for both
+workspaces on every pull request.
+
+```
+feat: · fix: · docs: · style: · refactor: · perf: · test: · build: · ci: · chore: · security:
+```
+
+## Author
+
+**Mahmoud Mohamed** — [@Eng1Mahmoud](https://github.com/Eng1Mahmoud)
