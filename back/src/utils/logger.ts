@@ -6,7 +6,7 @@ import { env } from "../config/env.js";
  * printed the full MONGO_URI, credentials included, on every boot.
  */
 export const logger = pino({
-  level: env.isProduction ? "info" : "debug",
+  level: env.LOG_LEVEL ?? (env.isProduction ? "info" : "debug"),
   // Never let a credential reach the log stream, wherever it appears.
   redact: {
     paths: [
@@ -20,7 +20,7 @@ export const logger = pino({
     ],
     censor: "[redacted]",
   },
-  ...(env.isProduction
+  ...(env.isProduction || env.LOG_LEVEL === "silent"
     ? {}
     : {
         transport: {

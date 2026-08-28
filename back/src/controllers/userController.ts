@@ -3,6 +3,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import type {
   ChangePasswordInput,
+  ListUsersQuery,
   UpdateProfileInput,
   UploadAvatarInput,
 } from "../validation/userSchemas.js";
@@ -47,9 +48,13 @@ export const userController = {
     res.status(200).json({ message: "Image uploaded", result });
   }),
 
-  listAll: asyncHandler(async (_req, res) => {
-    const result = await userService.listAll();
-    res.status(200).json({ message: "All users", result });
+  listAll: asyncHandler(async (req, res) => {
+    const { users, ...pagination } = await userService.listAll(
+      req.validated?.query as ListUsersQuery,
+    );
+    // `result` stays the array so the existing admin frontend keeps working;
+    // pagination is added alongside it.
+    res.status(200).json({ message: "All users", result: users, pagination });
   }),
 
   remove: asyncHandler(async (req, res) => {

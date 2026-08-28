@@ -35,6 +35,18 @@ export const emailParamSchema = z.object({
   email: emailSchema,
 });
 
+/**
+ * Pagination for the admin user list. Unbounded `User.find()` returned the
+ * whole collection in one response; `limit` is capped so a caller cannot ask
+ * for all of it in a single page.
+ */
+export const listUsersQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+});
+
+export type ListUsersQuery = z.infer<typeof listUsersQuerySchema>;
+
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
 export type UploadAvatarInput = z.infer<typeof uploadAvatarSchema>;

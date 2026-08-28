@@ -16,6 +16,11 @@ const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   PORT: z.coerce.number().int().positive().default(5000),
 
+  /** Set to "silent" in tests so assertions are not buried in request logs. */
+  LOG_LEVEL: z
+    .enum(["silent", "fatal", "error", "warn", "info", "debug", "trace"])
+    .optional(),
+
   CLIENT_URL: z.string().url().default("http://localhost:3000"),
 
   // Comma-separated. Parsed into an array below.
@@ -34,7 +39,18 @@ const envSchema = z.object({
   JWT_REFRESH_SECRET: z
     .string()
     .min(32, "JWT_REFRESH_SECRET must be at least 32 characters"),
-  ACCESS_TOKEN_TTL: z.string().default("15m"),
+  /**
+   * Deliberately 7d, not the 15m this will eventually be.
+   *
+   * The deployed frontend has no silent-refresh logic yet — it reads the token
+   * from a cookie and sends it as a bearer header — so a 15-minute access token
+   * would log everyone out every 15 minutes. Phase 6 adds the refresh loop to
+   * the client and this drops to 15m. The refresh endpoint and rotation already
+   * exist, so that is a frontend-only change.
+   *
+   * Even at 7d this closes S6: tokens now expire at all, and are revocable.
+   */
+  ACCESS_TOKEN_TTL: z.string().default("7d"),
   REFRESH_TOKEN_TTL: z.string().default("30d"),
 
   BCRYPT_ROUNDS: z.coerce.number().int().min(10).max(15).default(12),

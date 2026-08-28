@@ -45,11 +45,17 @@ build their own `axios` call against a hardcoded URL.
 
 ## 2. Security findings
 
-Ordered by severity. Items S1–S4 are live on `booking-bus.onrender.com` right now.
+Ordered by severity.
+
+> **Status.** S1, S2, S4, S5, S6, S7 are **fixed in Phase 2**, with regression
+> tests in `back/src/__tests__/auth.security.test.ts`. S8–S10 and S13–S14, S17–S19
+> were fixed in Phase 1. S3 and S11 remain and are Phase 3. S15–S16 are the
+> frontend half and are Phase 6. Findings below are kept as written so the
+> before/after is legible.
 
 ### Critical
 
-**S1 — Any account can be taken over by anyone.**
+✅ FIXED (Phase 2) **S1 — Any account can be taken over by anyone.**
 `back/controlar/user.mjs` — `sendCodeVerification` returns the reset code **in the HTTP
 response body**, and `newPassword` then compares two values that both come from `req.body`:
 
@@ -64,7 +70,7 @@ An attacker never needs the email. `POST /newPassword` with
 `{email: "victim@x.com", password: "hunter2", verificationCode: "1", verification_code: "1"}`
 resets any account. **This is the single most urgent fix in the repo.**
 
-**S2 — Email verification at signup is decorative.**
+✅ FIXED (Phase 2) **S2 — Email verification at signup is decorative.**
 `SignUp` returns `verification_code` _and the entire submitted user object_ to the client
 (`front/src/components/SignUp.jsx:79-80` stashes both in `sessionStorage`). `verification`
 then trusts the client's code and saves `req.body.user` — so the attacker controls every
@@ -76,20 +82,20 @@ client-side PayPal approval, and includes `seatePrice` from the client.
 `back/controlar/book.mjs` never contacts PayPal. Calling `/book` directly with a valid login
 token and any price yields a free ticket.
 
-**S4 — No role separation; every user is an admin.**
+✅ FIXED (Phase 2) **S4 — No role separation; every user is an admin.**
 `back/controlar/jwt.mjs` only verifies the signature. All `/admin/*` routes use that same
 `verifyToken`. Any registered user's token authorizes `addAdmin`, `deleteAdmin`, `AddTrip`,
 `deleteTrip`, `getAllUsers`, `deleteUser`.
 
 ### High
 
-**S5 — Admin passwords stored in plaintext.** `admins.mjs:9` does `admin.password !== password`;
+✅ FIXED (Phase 2) **S5 — Admin passwords stored in plaintext.** `admins.mjs:9` does `admin.password !== password`;
 `addAdmin` does `new Admin(req.body)` with no hashing.
 
-**S6 — JWTs never expire.** `jwt.sign({ email }, SECRET)` with no `expiresIn`, no `jti`,
+✅ FIXED (Phase 2) **S6 — JWTs never expire.** `jwt.sign({ email }, SECRET)` with no `expiresIn`, no `jti`,
 no revocation. A leaked token is valid forever.
 
-**S7 — `getAllUsers` dumps the whole collection** — bcrypt hashes, emails, booking history —
+✅ FIXED (Phase 2) **S7 — `getAllUsers` dumps the whole collection** — bcrypt hashes, emails, booking history —
 to any authenticated caller (which, per S4, means anyone).
 
 **S8 — Open mail relay.** `sendCodeVerification` sends a Gmail-authenticated email to any

@@ -2,8 +2,10 @@ import bcrypt from "bcryptjs";
 import { User, type UserDocument } from "../models/User.js";
 import { ApiError } from "../utils/ApiError.js";
 import { env } from "../config/env.js";
+import { tokenService } from "./tokenService.js";
 import type {
   ChangePasswordInput,
+  ListUsersQuery,
   UpdateProfileInput,
   UploadAvatarInput,
 } from "../validation/userSchemas.js";
@@ -60,6 +62,10 @@ export const userService = {
     user.password = await bcrypt.hash(newPassword, env.BCRYPT_ROUNDS);
     await user.save();
 
+    // A password change should end every other session — that is the action a
+    // user takes when they think someone else has access.
+    await tokenService.revokeAllForSubject(user.id as string);
+
     return { message: "Password changed successfully", match: true };
   },
 
@@ -79,23 +85,31 @@ export const userService = {
   },
 
   /**
-   * TODO(S7) — still reachable by any authenticated caller, which per S4 means
-   * any registered user. Phase 2 puts this behind `adminMiddleware`. The
-   * projection at least stops the password hashes and full booking history
-   * from leaving the server in the meantime.
+   * Admin-only, paginated. Fixes S7: this used to return the entire collection,
+   * password hashes and full booking history included, to any caller holding
+   * any valid token.
    */
-  async listAll(): Promise<UserDocument[]> {
-    return User.find()
-      .select("FName LName email image role createdAt")
-      .sort({ createdAt: -1 })
-      .lean<UserDocument[]>()
-      .exec();
+  async listAll({ page, limit }: ListUsersQuery) {
+    const [users, total] = await Promise.all([
+      User.find()
+        .select("FName LName email image role createdAt")
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .lean<UserDocument[]>()
+        .exec(),
+      User.countDocuments().exec(),
+    ]);
+
+    return { users, total, page, limit, pages: Math.ceil(total / limit) };
   },
 
-  /** TODO(S4/S7) — admin-only from Phase 2. */
   async deleteByEmail(email: string): Promise<void> {
     // The original passed `req.params.email` (a string) as the filter.
     const deleted = await User.findOneAndDelete({ email }).exec();
     if (!deleted) throw ApiError.notFound("User not found");
+
+    // Their sessions must not outlive the account.
+    await tokenService.revokeAllForSubject(deleted.id as string);
   },
 };

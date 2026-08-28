@@ -1,7 +1,10 @@
+import bcrypt from "bcryptjs";
 import { Admin, type AdminDocument } from "../models/Admin.js";
 import { Trip } from "../models/Trip.js";
 import { ApiError } from "../utils/ApiError.js";
-import { signLegacyToken } from "../utils/jwt.js";
+import { logger } from "../utils/logger.js";
+import { tokenService, type IssuedTokens } from "./tokenService.js";
+import { env } from "../config/env.js";
 import type {
   AddAdminInput,
   AddTripInput,
@@ -9,43 +12,82 @@ import type {
   DeleteTripParams,
 } from "../validation/adminSchemas.js";
 
+/** bcrypt hashes always start with $2a$, $2b$ or $2y$. */
+const isBcryptHash = (value: string): boolean => /^\$2[aby]\$/.test(value);
+
 export const adminService = {
   /**
-   * TODO(S5) — CRITICAL. Passwords in this collection are PLAINTEXT and the
-   * comparison below is a string equality check. Phase 2 hashes them and
-   * migrates the existing rows; hashing here first would lock out every
-   * current admin, so the two must land together.
+   * Fixes S5.
+   *
+   * Passwords are bcrypt-hashed from now on. Rows written before this phase are
+   * plaintext, so a stored value that is not a bcrypt hash is compared
+   * directly, then rehashed in place — that upgrade-on-login path is what stops
+   * every existing admin from being locked out the moment this deploys.
+   *
+   * Run `npm run migrate:admins` to convert them all up front; once no
+   * plaintext rows remain, delete the fallback below.
    */
-  async login({ email, password }: AdminLoginInput) {
+  async login({
+    email,
+    password,
+  }: AdminLoginInput): Promise<
+    | { exist: false; message: string }
+    | { exist: true; message: string; tokens: IssuedTokens }
+  > {
     const admin = await Admin.findOne({ email }).select("+password").exec();
 
     if (!admin) {
-      return { exist: false, message: "Admin Not Found " } as const;
+      await bcrypt.compare(password, "$2a$12$" + "x".repeat(53));
+      return { exist: false, message: "Admin Not Found " };
     }
 
-    if (admin.password !== password) {
-      return { exist: false, message: "Password is incorrect" } as const;
+    let authenticated: boolean;
+
+    if (isBcryptHash(admin.password)) {
+      authenticated = await bcrypt.compare(password, admin.password);
+    } else {
+      authenticated = admin.password === password;
+
+      if (authenticated) {
+        admin.password = await bcrypt.hash(password, env.BCRYPT_ROUNDS);
+        await admin.save();
+        logger.warn(
+          { email },
+          "Upgraded a plaintext admin password to bcrypt on login",
+        );
+      }
+    }
+
+    if (!authenticated) {
+      return { exist: false, message: "Password is incorrect" };
     }
 
     return {
       exist: true,
       message: "Login Success",
-      token: signLegacyToken(admin.email),
-    } as const;
+      tokens: await tokenService.issue({
+        subject: admin.id as string,
+        email: admin.email,
+        // The only place an admin role claim is ever minted.
+        role: "admin",
+      }),
+    };
   },
 
   async listAdmins(): Promise<AdminDocument[]> {
     return Admin.find().select("name email createdAt").lean<AdminDocument[]>().exec();
   },
 
-  /** TODO(S5) — stores the password as sent. Hashed in Phase 2. */
   async addAdmin(input: AddAdminInput) {
-    const existing = await Admin.exists({ email: input.email });
-    if (existing) {
+    if (await Admin.exists({ email: input.email })) {
       return { message: "Admin already exists" } as const;
     }
 
-    await Admin.create(input);
+    await Admin.create({
+      ...input,
+      password: await bcrypt.hash(input.password, env.BCRYPT_ROUNDS),
+    });
+
     return { message: "Admin added successfully" } as const;
   },
 
@@ -54,11 +96,10 @@ export const adminService = {
     const count = await Admin.countDocuments().exec();
 
     if (count <= 1) {
-      const admins = await this.listAdmins();
       return {
         message:
           "This administrator cannot be deleted before you add another. The site should not become without an administrator ",
-        admins,
+        admins: await this.listAdmins(),
       } as const;
     }
 
@@ -66,6 +107,9 @@ export const adminService = {
     if (!deleted) {
       throw ApiError.notFound("Admin not found");
     }
+
+    // Their live sessions should not outlive the account.
+    await tokenService.revokeAllForSubject(deleted.id as string);
 
     return {
       message: "Admin deleted successfully",
@@ -76,8 +120,7 @@ export const adminService = {
   async addTrip(input: AddTripInput) {
     const { from, to, date, busNumber, time, capacity, priceSeat } = input;
 
-    const clash = await Trip.exists({ "bus.number": busNumber });
-    if (clash) {
+    if (await Trip.exists({ "bus.number": busNumber })) {
       return {
         message:
           "This bus number already exists. Please choose a different bus number.",
