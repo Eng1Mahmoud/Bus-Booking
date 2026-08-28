@@ -48,4 +48,11 @@ router.post(
   authController.resetPassword,
 );
 
+/**
+ * Session lifecycle. The refresh cookie is scoped to /api/auth, so it is only
+ * ever sent to these two endpoints and never rides along on ordinary API calls.
+ */
+router.post("/refresh", authController.refresh);
+router.post("/logout", authController.logout);
+
 export default router;

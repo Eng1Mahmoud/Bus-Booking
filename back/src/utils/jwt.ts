@@ -1,20 +1,32 @@
-import jwt from "jsonwebtoken";
+import jwt, { type SignOptions } from "jsonwebtoken";
 import { env } from "../config/env.js";
 import { ApiError } from "./ApiError.js";
-import type { AccessTokenPayload } from "../types/index.js";
+import type { AccessTokenPayload, UserRole } from "../types/index.js";
 
 /**
- * TODO(S6): tokens are still signed without `expiresIn` here so that sessions
- * already held by logged-in users keep working through this phase. Phase 2
- * introduces a 15-minute access token plus a rotating refresh token, at which
- * point `ACCESS_TOKEN_TTL` and `REFRESH_TOKEN_TTL` become live.
+ * Signs a short-lived access token.
  *
- * TODO(S4): the payload deliberately still omits `role`. Adding it here without
- * the matching `adminMiddleware` would imply a guarantee that is not yet
- * enforced.
+ * Two things changed from the original `jwt.sign({ email }, SECRET)`:
+ * an expiry, so a leaked token stops working, and a `role` claim, so
+ * `adminMiddleware` has something to check. Authorization now depends on this
+ * claim, so it must only ever be set from a verified credential check.
  */
-export const signLegacyToken = (email: string): string =>
-  jwt.sign({ email }, env.JWT_ACCESS_SECRET);
+export const signAccessToken = (payload: {
+  subject: string;
+  email: string;
+  role: UserRole;
+}): string => {
+  const options: SignOptions = {
+    subject: payload.subject,
+    expiresIn: env.ACCESS_TOKEN_TTL as SignOptions["expiresIn"],
+  };
+
+  return jwt.sign(
+    { email: payload.email, role: payload.role },
+    env.JWT_ACCESS_SECRET,
+    options,
+  );
+};
 
 export const verifyAccessToken = (token: string): AccessTokenPayload => {
   try {
@@ -27,6 +39,9 @@ export const verifyAccessToken = (token: string): AccessTokenPayload => {
     return {
       sub: String(decoded.sub ?? decoded.email),
       email: String(decoded.email),
+      // Anything that is not exactly "admin" is a user. A token minted before
+      // this phase carries no role claim and therefore cannot reach an admin
+      // route — those sessions have to log in again, which is the point.
       role: decoded.role === "admin" ? "admin" : "user",
     };
   } catch (error) {

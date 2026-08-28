@@ -5,6 +5,7 @@ import { tripController } from "../controllers/tripController.js";
 import { bookingController } from "../controllers/bookingController.js";
 import { adminController } from "../controllers/adminController.js";
 import { protect } from "../middlewares/authMiddleware.js";
+import { requireAdmin } from "../middlewares/adminMiddleware.js";
 import { validate } from "../middlewares/validate.js";
 import { authLimiter, bookingLimiter, mailLimiter } from "../config/security.js";
 import {
@@ -17,6 +18,7 @@ import {
 import {
   changePasswordSchema,
   emailParamSchema,
+  listUsersQuerySchema,
   updateProfileSchema,
   uploadAvatarSchema,
 } from "../validation/userSchemas.js";
@@ -99,10 +101,17 @@ router.post(
   validate({ body: uploadAvatarSchema }),
   userController.updateAvatar,
 );
-router.get("/getAllUsers", protect, userController.listAll);
+router.get(
+  "/getAllUsers",
+  protect,
+  requireAdmin,
+  validate({ query: listUsersQuerySchema }),
+  userController.listAll,
+);
 router.delete(
   "/deleteUser/:email",
   protect,
+  requireAdmin,
   validate({ params: emailParamSchema }),
   userController.remove,
 );
@@ -124,29 +133,33 @@ router.post(
   validate({ body: adminLoginSchema }),
   adminController.login,
 );
-router.get("/admin/getAdmins", protect, adminController.listAdmins);
+router.get("/admin/getAdmins", protect, requireAdmin, adminController.listAdmins);
 router.post(
   "/admin/addAdmin",
   protect,
+  requireAdmin,
   validate({ body: addAdminSchema }),
   adminController.addAdmin,
 );
 router.delete(
   "/admin/deleteAdmin/:email",
   protect,
+  requireAdmin,
   validate({ params: emailParamSchema }),
   adminController.deleteAdmin,
 );
-router.get("/admin/getTrips", protect, tripController.listAll);
+router.get("/admin/getTrips", protect, requireAdmin, tripController.listAll);
 router.post(
   "/admin/AddTrip",
   protect,
+  requireAdmin,
   validate({ body: addTripSchema }),
   adminController.addTrip,
 );
 router.delete(
   "/admin/deleteTrip/:from/:to/:date/:busNumber",
   protect,
+  requireAdmin,
   validate({ params: deleteTripParamsSchema }),
   adminController.deleteTripBus,
 );
@@ -154,6 +167,7 @@ router.post(
   "/admin/book",
   bookingLimiter,
   protect,
+  requireAdmin,
   validate({ body: createBookingSchema }),
   bookingController.create,
 );

@@ -1,5 +1,6 @@
 import { adminService } from "../services/adminService.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import { setRefreshCookie } from "../utils/cookies.js";
 import type {
   AddAdminInput,
   AddTripInput,
@@ -10,7 +11,17 @@ import type {
 export const adminController = {
   login: asyncHandler(async (req, res) => {
     const result = await adminService.login(req.validated?.body as AdminLoginInput);
-    res.status(200).json(result);
+
+    if (!result.exist) {
+      return res.status(200).json(result);
+    }
+
+    setRefreshCookie(res, result.tokens.refreshToken);
+    res.status(200).json({
+      exist: true,
+      message: result.message,
+      token: result.tokens.accessToken,
+    });
   }),
 
   listAdmins: asyncHandler(async (_req, res) => {

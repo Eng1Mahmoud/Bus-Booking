@@ -1,5 +1,9 @@
 # API surface
 
+> **Status after Phase 2.** The auth endpoints no longer return verification
+> codes, and every `/admin/*` path — new and deprecated — requires an admin role
+> claim. Request and response shapes are otherwise unchanged.
+>
 > **Status after Phase 1.** Every path in the "Now" column below is still
 > served, as a deprecated alias in `back/src/routes/legacyRoutes.ts`, so the
 > deployed frontend keeps working. The "Target" column is now live and is what
