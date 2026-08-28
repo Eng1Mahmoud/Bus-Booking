@@ -119,7 +119,7 @@ router.delete(
 // --- Trips & bookings ------------------------------------------------------
 router.post("/search", validate({ body: searchTripsSchema }), tripController.search);
 /**
- * RETIRED. This is the endpoint that gave away free tickets.
+ * RETIRED, and not replaceable in place.
  *
  * It accepted `seatePrice` from the browser and marked a seat sold without ever
  * contacting PayPal, so anyone with a login could book any seat at any price —

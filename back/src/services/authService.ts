@@ -24,7 +24,7 @@ const codeExpiry = (): Date =>
 
 export const authService = {
   /**
-   * Starts a signup. Fixes S2.
+   * Starts a signup.
    *
    * The code is emailed and stored hashed; it is no longer returned to the
    * browser, which is what made the old email check meaningless. The password
@@ -67,7 +67,7 @@ export const authService = {
   },
 
   /**
-   * Completes a signup. Fixes S2.
+   * Completes a signup.
    *
    * The submitted code is checked against the hash stored at registration
    * time. The `verification_code` and `user` fields the frontend still sends
@@ -149,7 +149,7 @@ export const authService = {
   },
 
   /**
-   * Sends a password reset code. Fixes S1 and S8.
+   * Sends a password reset code.
    *
    * The code is no longer in the response. The reply is also identical whether
    * or not the address is registered, so this endpoint cannot be used to
@@ -187,7 +187,7 @@ export const authService = {
   },
 
   /**
-   * Completes a password reset. Fixes S1 — the critical one.
+   * Completes a password reset. Fixes  — the critical one.
    *
    * The submitted code is compared against a hash the server stored and
    * emailed. The `verification_code` field the frontend still sends is read

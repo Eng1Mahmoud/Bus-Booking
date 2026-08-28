@@ -85,7 +85,7 @@ export const userService = {
   },
 
   /**
-   * Admin-only, paginated. Fixes S7: this used to return the entire collection,
+   * Admin-only, paginated. Fixes : this used to return the entire collection,
    * password hashes and full booking history included, to any caller holding
    * any valid token.
    */

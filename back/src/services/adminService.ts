@@ -17,8 +17,7 @@ const isBcryptHash = (value: string): boolean => /^\$2[aby]\$/.test(value);
 
 export const adminService = {
   /**
-   * Fixes S5.
-   *
+   * *
    * Passwords are bcrypt-hashed from now on. Rows written before this phase are
    * plaintext, so a stored value that is not a bcrypt hash is compared
    * directly, then rehashed in place — that upgrade-on-login path is what stops

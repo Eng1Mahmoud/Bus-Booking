@@ -13,7 +13,7 @@ const router = Router();
 router.use(protect, bookingLimiter);
 
 /**
- * Two-step checkout. Fixes S3.
+ * Two-step checkout.
  *
  * The client identifies a seat; the server decides the price, holds the seat
  * and creates the PayPal order. Nothing the browser sends can influence the

@@ -1,200 +1,140 @@
-# API surface
+# API reference
 
-> **Status after Phase 3.** `POST /book` is **retired** and returns 410.
-> Booking is now `POST /api/payments/orders` followed by
-> `POST /api/payments/orders/:orderId/capture`; the client never sends a price.
-> `POST /admin/book` still works, as an admin counter sale.
->
-> **Status after Phase 2.** The auth endpoints no longer return verification
-> codes, and every `/admin/*` path — new and deprecated — requires an admin role
-> claim. Request and response shapes are otherwise unchanged.
->
-> **Status after Phase 1.** Every path in the "Now" column below is still
-> served, as a deprecated alias in `back/src/routes/legacyRoutes.ts`, so the
-> deployed frontend keeps working. The "Target" column is now live and is what
-> new clients should call. Phase 5 repoints the frontend, after which the
-> aliases and that file are deleted.
+Base URL in production: `https://booking-bus.onrender.com`
 
-Captured before any refactoring so that no endpoint is silently dropped during
-the migration. Base URL in production: `https://booking-bus.onrender.com`
+All responses are JSON. Errors share one shape:
 
-**Conventions today:** no `/api` prefix, mixed casing (`/SignUp`, `/AddTrip`),
-verbs in paths (`/getUser`, `/deleteTrip`), `POST` used for reads, and a
-`verifyToken` middleware that checks only that a JWT is well-signed — it does
-not distinguish users from admins.
+```json
+{
+  "message": "Validation failed",
+  "details": [{ "field": "email", "message": "Invalid email address" }]
+}
+```
 
-The right-hand column is the Phase 1–3 target. Frontend call sites are listed so
-each one can be ticked off during Phase 5.
+`details` is present only for validation failures.
+
+Authentication is a bearer access token in the `Authorization` header. The
+token is short-lived; a rotating refresh token is held in an httpOnly cookie
+scoped to `/api/auth` and exchanged through `POST /api/auth/refresh`.
 
 ---
 
-## Users — `back/routes/user.mjs`
+## Auth — `/api/auth`
 
-| Now                          | Auth  | Target                                    |
-| ---------------------------- | ----- | ----------------------------------------- |
-| `POST /SignUp`               | —     | `POST /api/auth/register`                 |
-| `POST /verification`         | —     | `POST /api/auth/verify-email`             |
-| `POST /login`                | —     | `POST /api/auth/login`                    |
-| `POST /sendCodeVerification` | —     | `POST /api/auth/forgot-password`          |
-| `POST /newPassword`          | —     | `POST /api/auth/reset-password`           |
-| `POST /getUser`              | token | `GET /api/users/me`                       |
-| `POST /updateInfo`           | token | `PATCH /api/users/me`                     |
-| `POST /changePassword`       | token | `PATCH /api/users/me/password`            |
-| `POST /uploadImage`          | token | `PUT /api/users/me/avatar`                |
-| `GET /getAllUsers`           | token | `GET /api/admin/users` (admin, paginated) |
-| `DELETE /deleteUser/:email`  | token | `DELETE /api/admin/users/:id` (admin)     |
+| Method | Path               | Auth   | Body                                    |
+| ------ | ------------------ | ------ | --------------------------------------- |
+| `POST` | `/register`        | —      | `FName`, `LName`, `email`, `password`   |
+| `POST` | `/verify-email`    | —      | `verificationCode`, `user.email`        |
+| `POST` | `/login`           | —      | `email`, `password`                     |
+| `POST` | `/forgot-password` | —      | `email`                                 |
+| `POST` | `/reset-password`  | —      | `email`, `password`, `verificationCode` |
+| `POST` | `/refresh`         | cookie | —                                       |
+| `POST` | `/logout`          | cookie | —                                       |
 
-### `POST /SignUp`
+`register` emails a code and stores the pending signup; the account is created
+by `verify-email`. `forgot-password` answers identically whether or not the
+address is registered.
 
-Request `{ FName, LName, email, password }`
-Response `{ exist: false, verification_code, user }` — or `{ exist: true, message }`
-
-> **S2.** Returns the verification code _and the submitted user object_ (password
-> included) to the browser. `SignUp.jsx:79-80` stores both in `sessionStorage`.
-> Nothing is persisted at this step; the account is created by `/verification`.
-
-### `POST /verification`
-
-Request `{ verificationCode, verification_code, user }`
-Response `{ verification: bool, message }`
-
-> **S2.** Compares two client-supplied values, then saves the client-supplied
-> `user` object wholesale. The email is never proven to belong to the caller.
-
-### `POST /login`
-
-Request `{ email, password }`
-Response `{ exist: bool, message, token }`
-
-> **S6.** Token is `jwt.sign({ email }, SECRET)` — no `expiresIn`, no role claim.
-
-### `POST /sendCodeVerification`
-
-Request `{ email }`
-Response `{ send: true, email, verification_code }`
-
-> **S1 / S8.** Returns the reset code in the response body, and will email any
-> address supplied, unauthenticated and unthrottled.
-
-### `POST /newPassword`
-
-Request `{ email, password, verificationCode, verification_code }`
-Response `{ verification: bool, message, user }`
-
-> **S1 — CRITICAL.** `verificationCode` and `verification_code` both come from
-> `req.body`. Any matching pair resets any account.
-
-### `POST /getUser`
-
-Request — none, identified by token. Response `{ message, result }`
-
-> Returns the full user document including the bcrypt hash.
-
-### `POST /updateInfo`
-
-Request `{ FName, LName, email }`
-
-> **S17.** `User.findOneAndUpdate(email, …)` passes a string where a filter
-> object is required.
-
-### `POST /changePassword`
-
-Request `{ password, newPassword }`
-Response `{ result: { message, match } }`
-
-### `POST /uploadImage`
-
-Request `{ image }` — base64 data URL, written straight into the user document.
-
-> **S13.** No size or MIME validation, under a 50 MB body limit.
-
-### `GET /getAllUsers`
-
-> **S7.** Entire collection — hashes, emails, booking history — to any caller
-> holding any valid token.
-
-### `DELETE /deleteUser/:email`
-
-> **S17.** `findOneAndDelete(req.params.email)` — string instead of a filter.
+`login` returns `{ exist, message, token }` and sets the refresh cookie.
+A wrong credential is a 200 with `exist: false`, not a 401.
 
 ---
 
-## Search — `back/routes/search.mjs`
+## Users — `/api/users`
 
-| Now            | Auth | Target                                  |
-| -------------- | ---- | --------------------------------------- |
-| `POST /search` | —    | `GET /api/trips/search?from=&to=&date=` |
+| Method   | Path           | Auth  | Body                      |
+| -------- | -------------- | ----- | ------------------------- |
+| `GET`    | `/me`          | token | —                         |
+| `PATCH`  | `/me`          | token | `FName`, `LName`, `email` |
+| `PATCH`  | `/me/password` | token | `password`, `newPassword` |
+| `PUT`    | `/me/avatar`   | token | `image` — base64 data URL |
+| `GET`    | `/`            | admin | — · `?page=&limit=`       |
+| `DELETE` | `/:email`      | admin | —                         |
 
-Request `{ from, to, date }` where `date` is `YYYY-M-D`. Response: array of trips.
+`/me` endpoints act on the token's own account; the caller cannot name another.
+Avatars are capped at roughly 1 MB and must be PNG, JPEG, WebP or GIF.
 
-> Date is stored as a **string**, so no range queries and no timezone handling.
-> Phase 3 migrates it to a real `Date`. No validation on any field.
-
----
-
-## Bookings — `back/routes/book.mjs`
-
-| Now          | Auth  | Target                                                                |
-| ------------ | ----- | --------------------------------------------------------------------- |
-| `POST /book` | token | `POST /api/payments/orders` + `POST /api/payments/orders/:id/capture` |
-
-Request `{ from, to, date, busNumber, seatNumber, seatePrice }`
-
-> **S3 — CRITICAL.** `seatePrice` is supplied by the client and the server never
-> contacts PayPal. Calling this endpoint directly books a free seat.
-> **S11.** Sets `status: true` without asserting it was `false` (double-booking
-> race), and responds _before_ writing the user's booking history — whose error
-> path then calls `res.status(500)` on an already-sent response.
+`PATCH /me/password` returns `{ result: { message, match } }` — `match: false`
+means the current password was wrong.
 
 ---
 
-## Admin — `back/routes/admins.mjs`, `back/routes/trips.mjs`
+## Trips — `/api/trips`
 
-| Now                                                   | Auth  | Target                                           |
-| ----------------------------------------------------- | ----- | ------------------------------------------------ |
-| `POST /admin/login`                                   | —     | `POST /api/auth/login` (unified, role in claims) |
-| `GET /admin/getAdmins`                                | token | `GET /api/admin/admins`                          |
-| `POST /admin/addAdmin`                                | token | `POST /api/admin/admins`                         |
-| `DELETE /admin/deleteAdmin/:email`                    | token | `DELETE /api/admin/admins/:id`                   |
-| `GET /admin/getTrips`                                 | token | `GET /api/trips`                                 |
-| `POST /admin/AddTrip`                                 | token | `POST /api/admin/trips`                          |
-| `DELETE /admin/deleteTrip/:from/:to/:date/:busNumber` | token | `DELETE /api/admin/trips/:tripId/buses/:busId`   |
-| `POST /admin/book`                                    | token | `POST /api/admin/bookings`                       |
+| Method | Path      | Auth  | Body                 |
+| ------ | --------- | ----- | -------------------- |
+| `POST` | `/search` | —     | `from`, `to`, `date` |
+| `GET`  | `/`       | token | —                    |
 
-> **S4 — CRITICAL.** Every row above is protected by the same `verifyToken` that
-> guards the user routes. Any registered user's token authorizes all of them.
-> **S5.** `POST /admin/login` compares `admin.password !== password` — admin
-> passwords are stored in plaintext, and `addAdmin` saves `req.body` unhashed.
-> **S12.** `deleteTrip` keys on four positional URL params instead of an ID.
+`date` is `YYYY-M-D` with no zero padding. `search` answers with a bare array.
 
 ---
 
-## Misc
+## Payments — `/api/payments`
 
-| Now                               | Target                                       |
-| --------------------------------- | -------------------------------------------- |
-| `GET /` — returns `"Hello World"` | `GET /api/health` — uptime + DB connectivity |
+| Method | Path                       | Auth  | Body                                            |
+| ------ | -------------------------- | ----- | ----------------------------------------------- |
+| `POST` | `/orders`                  | token | `from`, `to`, `date`, `busNumber`, `seatNumber` |
+| `POST` | `/orders/:orderId/capture` | token | —                                               |
+| `POST` | `/orders/:orderId/cancel`  | token | —                                               |
+
+Checkout is two steps. `orders` reads the seat price from the trip, holds the
+seat for ten minutes and creates the PayPal order, returning only an order id —
+the client never sends an amount. `capture` captures through PayPal and checks
+the captured sum and currency against the order before the booking is confirmed.
+`cancel` releases the hold when the customer backs out.
+
+A seat already held or sold returns 409. Returns 503 if PayPal is not configured.
 
 ---
 
-## Frontend call sites to migrate (Phase 5)
+## Bookings — `/api/bookings`
 
-All twelve hardcode `https://booking-bus.onrender.com`:
+| Method | Path | Auth  |
+| ------ | ---- | ----- |
+| `GET`  | `/`  | token |
 
-| File                                        | Endpoint                |
-| ------------------------------------------- | ----------------------- |
-| `components/SignIn.jsx:69`                  | `/login`                |
-| `components/SignUp.jsx:74`                  | `/SignUp`               |
-| `components/verification.jsx:36`            | `/verification`         |
-| `pages/ForgetPassword.jsx:32`               | `/sendCodeVerification` |
-| `pages/NewPassword.jsx:37`                  | `/newPassword`          |
-| `components/general/Navbar.jsx:92`          | `/getUser`              |
-| `components/settings/TabsEdit.jsx:52`       | `/getUser`              |
-| `components/settings/ChangeInfo.jsx:36`     | `/updateInfo`           |
-| `components/settings/ChangePassword.jsx:34` | `/changePassword`       |
-| `components/settings/ChangeImage.jsx:35`    | `/uploadImage`          |
-| `components/MuiForm.jsx:87`                 | `/search`               |
-| `components/Trips/Book.jsx:29`              | `/book`                 |
+The caller's own paid bookings. There is deliberately no `POST`: a booking is
+created only as the side effect of a captured payment, or of an admin counter
+sale.
 
-No admin dashboard exists in this repo — the admin endpoints are consumed by a
-separate frontend.
+---
+
+## Admin — `/api/admin`
+
+| Method   | Path                                | Auth  |
+| -------- | ----------------------------------- | ----- |
+| `POST`   | `/login`                            | —     |
+| `GET`    | `/admins`                           | admin |
+| `POST`   | `/admins`                           | admin |
+| `DELETE` | `/admins/:email`                    | admin |
+| `GET`    | `/trips`                            | admin |
+| `POST`   | `/trips`                            | admin |
+| `DELETE` | `/trips/:from/:to/:date/:busNumber` | admin |
+| `POST`   | `/bookings`                         | admin |
+
+`POST /admin/bookings` is a counter sale — a ticket paid for offline. It is the
+only route that marks a seat sold without PayPal, and the price still comes from
+the trip document.
+
+Deleting the last remaining admin is refused.
+
+---
+
+## Health
+
+| Method | Path          | Auth |
+| ------ | ------------- | ---- |
+| `GET`  | `/api/health` | —    |
+
+Returns 200 when the database is reachable, 503 when it is not, so a platform
+health check pulls a degraded instance out of rotation.
+
+---
+
+## Deprecated paths
+
+The endpoints the original frontend used (`/login`, `/SignUp`, `/search`,
+`/getUser`, `/admin/getTrips` and the rest) are still served as aliases and
+delegate to the same controllers. They will be removed once no deployed client
+calls them. `POST /book` is already gone and returns 410.

@@ -38,7 +38,7 @@ router.put(
 );
 
 // --- Administrative ---------------------------------------------------------
-// Fixes S7. Listing and deleting accounts is now admin-only; previously any
+// Listing and deleting accounts is now admin-only; previously any
 // authenticated caller could enumerate every user and delete any of them.
 router.get(
   "/",

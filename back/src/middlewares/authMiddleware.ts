@@ -5,11 +5,9 @@ import { extractBearerToken, verifyAccessToken } from "../utils/jwt.js";
 /**
  * Verifies the bearer token and attaches its claims to `req.user`.
  *
- * TODO(S4) — READ THIS BEFORE ADDING A ROUTE. This check proves only that a
- * token was signed by us. It does NOT distinguish a user from an admin, so
- * every `/admin/*` route it guards is reachable by any registered user.
- * Phase 2 adds `adminMiddleware` and puts a `role` claim in the token; until
- * then, do not treat this as authorization.
+ * This establishes *who* the caller is, not what they may do. A route that
+ * needs an admin must also mount `requireAdmin`, which checks the `role`
+ * claim; this middleware alone proves only that the token is ours.
  */
 export const protect = (req: Request, _res: Response, next: NextFunction): void => {
   const token = extractBearerToken(req.headers.authorization);

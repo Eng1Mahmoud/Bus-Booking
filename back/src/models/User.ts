@@ -46,14 +46,11 @@ const userSchema = new Schema<UserDocument>(
       type: String,
       enum: ["user", "admin"],
       default: "user",
-      // TODO(S4): Phase 2 wires this claim into the access token and enforces
-      // it in adminMiddleware. Until then every route still uses the shared
-      // token check and any user can reach the admin endpoints.
+      // Carried in the access token and enforced by `requireAdmin`.
     },
     image: { type: String },
-    // TODO(S2): Phase 2 makes this meaningful — today an account is created
-    // only after a code exchange the client can trivially forge, so every
-    // existing account is effectively unverified.
+    // Set once the emailed code has been matched against the hash held in
+    // PendingRegistration; a user document is only created at that point.
     isVerified: { type: Boolean, default: false },
     bookingsHistory: { type: [bookingHistorySchema], default: [] },
   },

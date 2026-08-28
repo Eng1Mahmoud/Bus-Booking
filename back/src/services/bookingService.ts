@@ -46,7 +46,7 @@ export const bookingService = {
   },
 
   /**
-   * Claims a seat, atomically. Fixes S11.
+   * Claims a seat, atomically.
    *
    * The atomicity lives in `seatStore.claimSeat`; see the note there on why
    * these writes bypass the mongoose model. Two concurrent callers both reach

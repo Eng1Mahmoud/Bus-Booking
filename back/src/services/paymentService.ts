@@ -15,7 +15,7 @@ const toChargeAmount = (priceEGP: number): number => {
 
 export const paymentService = {
   /**
-   * Step one of checkout. Fixes S3.
+   * Step one of checkout.
    *
    * The server picks the price, holds the seat, and creates the PayPal order.
    * The browser receives an order id and nothing else it could tamper with —

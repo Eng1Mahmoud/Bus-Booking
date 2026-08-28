@@ -20,10 +20,9 @@ const adminSchema = new Schema<AdminDocument>(
       trim: true,
       index: true,
     },
-    // TODO(S5): passwords in this collection are stored in PLAINTEXT — the old
-    // login compared `admin.password !== password` directly. Phase 2 hashes
-    // them with bcrypt and ships scripts/hashExistingAdmins.ts to migrate the
-    // rows already in the database.
+    // bcrypt-hashed, and `select: false` so it never leaves in a query result
+    // unless a caller asks for it explicitly. A row still holding a pre-hash
+    // value is upgraded on that admin's next successful login.
     password: { type: String, required: true, select: false },
   },
   { timestamps: true },

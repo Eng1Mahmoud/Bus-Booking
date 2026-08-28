@@ -5,7 +5,7 @@ import { ApiError } from "../utils/ApiError.js";
  * Requires an admin role claim. Always mounted *after* `protect`, which is
  * what puts `req.user` there.
  *
- * This closes S4. Before it, every `/admin/*` route was guarded only by "is
+ * This closes . Before it, every `/admin/*` route was guarded only by "is
  * this a token we signed", so any registered user could add and delete admins,
  * create and delete trips, list every user, and delete accounts.
  */

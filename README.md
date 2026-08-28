@@ -2,10 +2,8 @@
 
 Book bus tickets across Egypt: search routes, pick a seat, pay online.
 
-A graduation project, refactored from the ground up. The plan, the reasoning
-behind each decision, and the twenty security findings that drove it are in
-[REFACTOR_PLAN.md](REFACTOR_PLAN.md); the API surface is in
-[docs/api.md](docs/api.md).
+A graduation project, rebuilt on a modern stack. The API surface is documented
+in [docs/api.md](docs/api.md).
 
 ---
 

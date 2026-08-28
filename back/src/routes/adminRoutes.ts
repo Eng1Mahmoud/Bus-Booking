@@ -25,7 +25,7 @@ router.post(
 );
 
 /**
- * Fixes S4. `protect` establishes *who* the caller is; `requireAdmin` decides
+ * `protect` establishes *who* the caller is; `requireAdmin` decides
  * whether they may be here. Until this phase only the first of those ran, so
  * every route below was reachable with any registered user's token.
  */

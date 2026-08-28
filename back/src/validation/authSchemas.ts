@@ -31,7 +31,7 @@ export const forgotPasswordSchema = z.object({
  * `verification_code` is accepted but IGNORED.
  *
  * It used to be the server's own code, echoed back by the browser and compared
- * against the user's input — which is what made S1 and S2 exploitable. The code
+ * against the user's input. The code
  * is now looked up from PendingRegistration / VerificationToken and this field
  * is read nowhere. It stays in the schema only so the deployed frontend, which
  * still sends it, does not fail validation. Phase 5 stops sending it and it is
@@ -46,7 +46,7 @@ export const verifyEmailSchema = z.object({
    *
    * The name and password fields are optional because registration no longer
    * returns them: the browser used to be handed back the whole submitted user
-   * object, plaintext password included, and send it here to be persisted
+   * object and send it here to be persisted
    * verbatim. Old clients that still hold one in sessionStorage keep working;
    * what they send is discarded.
    */

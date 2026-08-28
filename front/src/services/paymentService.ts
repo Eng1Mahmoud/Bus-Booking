@@ -13,8 +13,7 @@ export interface SeatSelection {
  * Checkout, in the order the server expects it.
  *
  * Note the absence of a price anywhere in this file: the server reads it from
- * the trip. A `createOrder` that accepted an amount is what made free tickets
- * possible before Phase 3.
+ * the trip document, so nothing the browser sends can influence the amount.
  */
 export const paymentService = {
   async createOrder(selection: SeatSelection): Promise<CreateOrderResponse> {
