@@ -363,6 +363,12 @@ Each phase is independently shippable and leaves the app running. Estimates assu
 
 ### Phase 8 — Quality & polish ✅ DONE
 
+> **Superseded.** The test suites, the CI workflow, the `.env.example`
+> templates and the helper scripts were removed at the project owner's request
+> after the refactor landed. The security fixes themselves are unchanged; what
+> is gone is the automated proof that they stay fixed. The findings in §2 are
+> the record of what each one closed.
+
 - **Backend:** Vitest + supertest + `mongodb-memory-server`. Non-negotiable coverage:
   password reset cannot be forged; a non-admin cannot reach `/api/admin/*`; a booking without
   a captured payment is rejected; two concurrent bookings of one seat → one 201 and one 409.

@@ -14,9 +14,7 @@
     "install:all": "npm install && npm --prefix back install && npm --prefix front install",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "prepare": "husky",
-    "seed": "tsx src/scripts/seed.ts",
-    "seed:admin": "tsx src/scripts/seedAdmin.ts"
+    "prepare": "husky"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,mjs,cjs}": [
